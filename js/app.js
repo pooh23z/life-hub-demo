@@ -69,17 +69,10 @@ class AppController {
         const btnToggle = document.getElementById('btn-toggle-theme');
         if (btnToggle) {
             btnToggle.addEventListener('click', () => {
-                const order = ['dark', 'light', 'wave'];
-                const nextIndex = (order.indexOf(this.themeMode) + 1) % order.length;
-                this.themeMode = order[nextIndex];
+                this.themeMode = (this.themeMode === 'dark') ? 'light' : 'dark';
                 localStorage.setItem('lifehub_theme_mode', this.themeMode);
                 this.applyThemeMode(this.themeMode);
-                const toastMap = {
-                    dark: '🌙 เปลี่ยนเป็นโหมดกลางคืนแล้ว',
-                    light: '☀️ เปลี่ยนเป็นโหมดกลางวันแล้ว',
-                    wave: '🌊 เปลี่ยนเป็นธีม Wave (ทะเลยามเช้า) แล้ว'
-                };
-                this.showToast(toastMap[this.themeMode]);
+                this.showToast(this.themeMode === 'light' ? '☀️ เปลี่ยนเป็นโหมดกลางวันแล้ว' : '🌙 เปลี่ยนเป็นโหมดกลางคืนแล้ว');
             });
         }
     }
@@ -88,26 +81,17 @@ class AppController {
         const iconElem = document.getElementById('theme-btn-icon');
         const textElem = document.getElementById('theme-btn-text');
 
-        document.body.classList.remove('light-theme', 'dark-theme', 'wave-theme');
-
-        const metaThemeColor = document.querySelector('meta[name="theme-color"]');
-        const colorMap = { dark: '#0b0f19', light: '#faf6f0', wave: '#eef8f7' };
-
         if (mode === 'light') {
             document.body.classList.add('light-theme');
-            if (iconElem) iconElem.textContent = '🌊';
-            if (textElem) textElem.textContent = 'ธีม Wave';
-        } else if (mode === 'wave') {
-            document.body.classList.add('wave-theme');
+            document.body.classList.remove('dark-theme');
             if (iconElem) iconElem.textContent = '🌙';
             if (textElem) textElem.textContent = 'โหมดกลางคืน';
         } else {
             document.body.classList.add('dark-theme');
+            document.body.classList.remove('light-theme');
             if (iconElem) iconElem.textContent = '☀️';
             if (textElem) textElem.textContent = 'โหมดกลางวัน';
         }
-
-        if (metaThemeColor) metaThemeColor.setAttribute('content', colorMap[mode]);
     }
 
     bindNotificationPermissionBtn() {
@@ -143,7 +127,7 @@ class AppController {
 
         const dateInput = document.getElementById('entry-date');
         if (dateInput) {
-            dateInput.value = new Date().toISOString().split('T')[0];
+            dateInput.value = getLocalDateStr();
         }
     }
 
@@ -427,7 +411,7 @@ class AppController {
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = `lifehub-backup-${new Date().toISOString().split('T')[0]}.json`;
+                a.download = `lifehub-backup-${getLocalDateStr()}.json`;
                 a.click();
                 this.showToast('📥 ส่งออกไฟล์ข้อมูลสำเร็จ! นำไฟล์นี้ไปเปิดกด นำเข้าข้อมูล บนมือถือได้ทันที');
             });

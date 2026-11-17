@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Life & Business Hub - ระบบจัดการชีวิตและธุรกิจ (Demo Template)</title>
-    <meta name="description" content="แอปพลิเคชันจัดการชีวิตและธุรกิจส่วนตัว บันทึกรายรับ-รายจ่าย งานค้าง ยอดขายร้านค้า สลิปโอนเงิน ปฏิทินวันว่าง">
+    <title>Life & Business Hub - ระบบจัดการชีวิตและธุรกิจ (พร้อมระบบ Sync ข้อมูล คอม & มือถือ)</title>
+    <meta name="description" content="แอปพลิเคชันจัดการชีวิตและธุรกิจส่วนตัว บันทึกรายรับ-รายจ่าย งานค้าง ยอดขายร้านค้า สลิปโอนเงิน ปฏิทินวันว่าง และระบบ Sync ข้อมูลระหว่างคอมกับมือถือ">
     
     <!-- Mobile PWA Capabilities -->
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -15,8 +15,15 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Bootstrap 5 CSS & Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Chart.js for graphs -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Firebase SDK for Cloud Sync -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
     <!-- Google Identity Services SDK -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <link rel="stylesheet" href="css/styles.css">
@@ -64,14 +71,24 @@
                 </button>
             </nav>
 
-
+            <div class="sidebar-sync-section">
+                <button id="btn-open-cloud-sync" class="btn-cloud-sync" title="สถานะ Cloud Sync ข้ามอุปกรณ์">
+                    <span class="cloud-sync-icon">☁️</span>
+                    <div class="cloud-sync-text">
+                        <span class="cloud-sync-label">Cloud Sync</span>
+                        <span id="cloud-sync-status-badge" class="cloud-sync-badge online">
+                            <span class="sync-dot sync-online"></span> ซิงก์เรียลไทม์ (DEMO-2026)
+                        </span>
+                    </div>
+                </button>
+            </div>
 
             <div class="sidebar-footer">
                 <div class="user-profile">
                     <div class="avatar">P</div>
                     <div class="user-info">
                         <span class="user-name">คุณเจ้าของร้าน</span>
-                        <span class="user-role">Executive Edition</span>
+                        <span class="user-role">Executive (Sync Ready)</span>
                     </div>
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 6px;">
@@ -101,7 +118,7 @@
                 </div>
                 <div class="header-right">
                     <!-- Day/Night Mode Switcher Button -->
-                    <button class="btn-secondary" id="btn-toggle-theme" title="สลับโหมด: กลางคืน / กลางวัน / Wave">
+                    <button class="btn-secondary" id="btn-toggle-theme" title="สลับโหมดกลางวัน / โหมดกลางคืน">
                         <span id="theme-btn-icon">☀️</span> <span id="theme-btn-text">โหมดกลางวัน</span>
                     </button>
                     <button class="btn-secondary" id="btn-enable-notifications" title="เปิดการแจ้งเตือนเตือนความจำมือถือ">
@@ -133,8 +150,20 @@
                         </div>
                         <div class="metric-value" id="dash-net-balance">฿0.00</div>
                         <div class="metric-footer">
-                            <span class="text-success" id="dash-month-income">+฿0 รายรับเดือนนี้</span>
-                            <span class="text-danger" id="dash-month-expense">-฿0 รายจ่าย</span>
+                            <span class="text-success" id="dash-month-income">+฿0 รายรับรวม</span>
+                            <span class="text-danger" id="dash-month-expense">-฿0 รายจ่ายรวม</span>
+                        </div>
+                    </div>
+
+                    <div class="glass-card metric-card flame-glow" style="cursor: pointer;" onclick="appController.switchTab('finance')" title="คลิกเพื่อดูสรุปแคลอรี่และมื้ออาหาร">
+                        <div class="card-header">
+                            <span class="metric-label">🥗 แคลอรี่อาหารวันนี้</span>
+                            <div class="icon-wrapper amber" style="background: rgba(245, 158, 11, 0.2); color: #f59e0b;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg></div>
+                        </div>
+                        <div class="metric-value" id="dash-calorie-consumed" style="color: #f59e0b;">0 kcal</div>
+                        <div class="metric-footer">
+                            <span class="text-info" id="dash-calorie-progress">🔥 0 มื้อ (เป้า 2,000)</span>
+                            <span class="badge-tag" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b; font-size: 0.7rem; font-weight: 700;">แคลอรี่</span>
                         </div>
                     </div>
 
@@ -195,11 +224,14 @@
                         <div class="line-quick-box">
                             <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 12px;">เลือกประเภทรายงานที่ต้องการยิงเข้า LINE ของคุณ:</p>
                             <div style="display: flex; gap: 10px; flex-direction: column;">
-                                <button class="btn-primary btn-emerald width-100" id="btn-dash-send-line-shop">
-                                    🛍️ 1. ยิงเฉพาะยอดขาย & ต้นทุนร้านค้า (Google Sheets)
+                                <button class="btn-primary width-100" id="btn-dash-send-line-all" style="background: linear-gradient(135deg, #059669, #2563eb); font-weight: 700; padding: 12px 14px; font-size: 0.92rem;">
+                                    🚀 ยิงทั้งข้อมูลร้าน + ข้อมูลส่วนตัว (ส่งพร้อมกันครบชุด)
+                                </button>
+                                <button class="btn-secondary width-100" id="btn-dash-send-line-shop">
+                                    🛍️ ยิงเฉพาะยอดขาย & ต้นทุนร้านค้า (Google Sheets)
                                 </button>
                                 <button class="btn-secondary width-100" id="btn-dash-send-line-personal">
-                                    👤 2. ยิงเฉพาะเงินส่วนตัว & นัดหมายวันนี้
+                                    👤 ยิงเฉพาะเงินส่วนตัว & นัดหมายวันนี้
                                 </button>
                             </div>
                         </div>
@@ -283,6 +315,7 @@
                         <button class="filter-btn" data-finance-filter="expense">รายจ่าย</button>
                     </div>
                     <div class="action-buttons">
+                        <button class="btn-secondary btn-danger-outline" id="btn-reset-personal-finance" title="ล้างเฉพาะรายรับ-รายจ่ายส่วนตัวเป็น ฿0 (ไม่กระทบเงินร้านและเป้าหมายออม)">🧹 รีเซ็ตการเงิน (฿0)</button>
                         <button class="btn-secondary" id="btn-open-savings-modal">🎯 เพิ่มเป้าหมายออมเงิน</button>
                         <button class="btn-secondary" id="btn-add-income">+ เพิ่มรายรับ</button>
                         <button class="btn-primary" id="btn-add-expense">+ เพิ่มรายจ่าย</button>
@@ -312,6 +345,25 @@
                         <div class="chart-wrapper-small">
                             <canvas id="financeCategoryChart"></canvas>
                         </div>
+                    </div>
+                </div>
+
+                <!-- CALORIE & NUTRITION TRACKER CARD -->
+                <div class="glass-card mt-24" id="calorie-tracker-card">
+                    <div class="card-title-bar">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span style="font-size: 1.5rem;">🥗</span>
+                            <div>
+                                <h3 style="margin: 0; font-size: 1.1rem;">สรุปแคลอรี่ & โภชนาการวันนี้ (Daily Nutrition Tracker)</h3>
+                                <p style="margin: 0; font-size: 0.8rem; color: var(--text-secondary);">คำนวณและหักลบรายจ่ายส่วนตัวอัตโนมัติจาก LINE และ AI Chat</p>
+                            </div>
+                        </div>
+                        <span id="calorie-badge-summary" class="badge-tag" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b; font-size: 0.85rem; font-weight: 700; padding: 4px 10px; border-radius: 8px;">
+                            🔥 0 / 2,000 kcal
+                        </span>
+                    </div>
+                    <div id="calorie-tracker-content">
+                        <!-- Injected by finance.js -->
                     </div>
                 </div>
 
@@ -487,7 +539,7 @@
                         </div>
                         <div class="form-group">
                             <label for="gmail-address-input">📬 อีเมลของคุณ (BU Mail / Gmail)</label>
-                            <input type="email" id="gmail-address-input" class="form-input" placeholder="เช่น your-email@gmail.com">
+                            <input type="email" id="gmail-address-input" class="form-input" placeholder="เช่น your-email@gmail.com" value="">
                         </div>
                         <button class="btn-primary width-100 mt-12" id="btn-connect-gmail">
                             🔴 ล็อกอินเชื่อมต่อ Gmail (Google Sign-In)
@@ -523,7 +575,10 @@
                             <label for="line-bot-token-input">🔑 Channel Access Token</label>
                             <input type="text" id="line-bot-token-input" class="form-input" placeholder="วาง Channel Access Token จาก LINE Developers Console...">
                         </div>
-                        <button class="btn-primary btn-emerald width-100 mt-12" id="btn-test-send-line-shop">
+                        <button class="btn-primary width-100 mt-12" id="btn-test-send-line-all" style="background: linear-gradient(135deg, #059669, #2563eb); font-weight: 700; padding: 11px 14px;">
+                            🚀 ยิงทั้งข้อมูลร้าน + ข้อมูลส่วนตัว (ส่งพร้อมกันครบชุด)
+                        </button>
+                        <button class="btn-secondary width-100 mt-8" id="btn-test-send-line-shop">
                             🛍️ ยิงเฉพาะยอดขาย & ต้นทุนร้านค้า (Google Sheets)
                         </button>
                         <button class="btn-secondary width-100 mt-8" id="btn-test-send-line-personal">
@@ -588,8 +643,9 @@
             <!-- Quick Secretary Action Chips -->
             <div class="secretary-action-chips">
                 <button class="chip-action-btn" onclick="aiAssistantController.triggerQuickAction('briefing')">📊 สรุปภาพรวมวันนี้</button>
+                <button class="chip-action-btn" onclick="aiAssistantController.triggerQuickAction('calories')">🥗 เช็กแคลอรี่ & อาหาร</button>
                 <button class="chip-action-btn" onclick="aiAssistantController.triggerQuickAction('calendar')">📅 เช็กวันว่างสัปดาห์นี้</button>
-                <button class="chip-action-btn" onclick="aiAssistantController.triggerQuickAction('profit')">💸 สรุปกำไรยอดขาย</button>
+                <button class="chip-action-btn" onclick="aiAssistantController.triggerQuickAction('profit')">🏪 วิเคราะห์ผลประกอบการร้าน</button>
                 <button class="chip-action-btn" onclick="aiAssistantController.triggerQuickAction('advice')">💡 วิเคราะห์การเงิน & คำแนะนำ</button>
                 <button class="chip-action-btn" onclick="aiAssistantController.triggerQuickAction('weather')">🌧️ เช็กฝนตกวันนี้</button>
                 <button class="chip-action-btn" onclick="aiAssistantController.clearHistory()" style="border-color: rgba(239, 68, 68, 0.4); color: #fca5a5;">🗑️ ล้างประวัติคุย</button>
@@ -795,11 +851,50 @@
 
 
 
+    <!-- MODAL: CLOUD SYNC SETTINGS & ROOMS -->
+    <div class="modal-overlay" id="modal-cloud-sync">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>☁️ ระบบ Cloud Sync ข้ามอุปกรณ์ (Mac & Mobile)</h3>
+                <button class="modal-close" id="btn-close-sync-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="sync-modal-status" style="margin-bottom: 20px;">
+                    <!-- Injected by cloud-sync.js -->
+                </div>
+
+                <div id="room-section" style="display: none;">
+                    <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: 12px; padding: 18px; margin-bottom: 16px;">
+                        <h4 style="margin-top: 0; font-size: 0.95rem;">🔗 เข้าร่วมห้อง Sync อื่น</h4>
+                        <p style="font-size: 0.82rem; color: var(--text-secondary); margin-bottom: 12px;">หากต้องการเชื่อมต่อกับห้องบนมือถือเครื่องอื่น ให้ใส่รหัสห้อง 6 ตัวอักษร:</p>
+                        <div style="display: flex; gap: 10px;">
+                            <input type="text" id="join-room-code" class="form-input" placeholder="ใส่รหัสห้อง เช่น DEMO-2026" maxlength="8" style="text-transform: uppercase; font-weight: 700; letter-spacing: 2px;">
+                            <button id="btn-join-room" class="btn-primary" style="white-space: nowrap;">เข้าร่วมห้อง</button>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 14px;">
+                        <button id="btn-create-room" class="btn-secondary" style="font-size: 0.82rem;">🏠 สร้างห้องใหม่</button>
+                        <button onclick="if(window.cloudSync) window.cloudSync.forceSyncCloud();" class="btn-primary btn-emerald" style="font-size: 0.82rem;">🔄 ซิงก์ข้อมูลทันที</button>
+                    </div>
+                </div>
+
+                <div id="firebase-config-section" style="display: none; margin-top: 16px;">
+                    <h4>🔑 ตั้งค่า Firebase Configuration</h4>
+                    <p style="font-size: 0.8rem; color: var(--text-secondary);">ใส่ Firebase Web Configuration (JSON หรือ Object):</p>
+                    <textarea id="firebase-config-input" class="form-input" rows="4" placeholder="{ apiKey: '...', databaseURL: '...' }"></textarea>
+                    <button id="btn-save-firebase-config" class="btn-primary" style="margin-top: 10px;">บันทึก Firebase Config</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Toast Notification -->
     <div id="toast" class="toast-notification"></div>
 
     <!-- Scripts -->
     <script src="js/store.js"></script>
+    <script src="js/cloud-sync.js"></script>
     <script src="js/integrations.js"></script>
     <script src="js/finance.js"></script>
     <script src="js/business.js"></script>

@@ -1,13 +1,14 @@
 # Sensitive Environment Files
 .env
+.env*
 .env.local
-.env.development.local
-.env.test.local
-.env.production.local
+.env.*.local
 
-# Build / Deployment Artifacts
+# Build / Deployment / Tooling Artifacts
 .vercel
+.firebase
 node_modules/
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
@@ -18,5 +19,4 @@ yarn-error.log*
 ._*
 .Spotlight-V100
 .Trashes
-ehthumbs.db
 Thumbs.db

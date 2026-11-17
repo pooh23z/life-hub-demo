@@ -78,15 +78,15 @@ class BusinessController {
 
     getFilteredBusinessItems() {
         let items = store.getBusiness();
-        const todayStr = new Date().toISOString().split('T')[0];
-        const yesterdayStr = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+        const todayStr = getLocalDateStr();
+        const yesterdayStr = getLocalDateStr(new Date(Date.now() - 86400000));
 
         if (this.dateFilter === 'today') {
             items = items.filter(x => x.date === todayStr);
         } else if (this.dateFilter === 'yesterday') {
             items = items.filter(x => x.date === yesterdayStr);
         } else if (this.dateFilter === '7days') {
-            const sevenDaysAgoStr = new Date(Date.now() - (86400000 * 7)).toISOString().split('T')[0];
+            const sevenDaysAgoStr = getLocalDateStr(new Date(Date.now() - (86400000 * 7)));
             items = items.filter(x => x.date >= sevenDaysAgoStr);
         } else if (this.dateFilter === 'this-month') {
             const currentMonthPrefix = todayStr.substring(0, 7); // e.g. "2026-08"

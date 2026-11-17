@@ -1,7 +1,233 @@
 /* ==========================================================================
    Life & Business Hub - Ultra-Smart Gemini 1.5 Pro AI Executive Assistant
-   (Multi-Turn Memory, Voice Input, Thai Number Words & Robust Date Range Parser)
+   (Multi-Turn Memory, Voice Input, Thai Calorie Knowledge Base & Separate Finances)
    ========================================================================== */
+
+// 🥗 THAI CALORIE KNOWLEDGE BASE (คำนวณแคลอรี่อาหารไทยยอดนิยม)
+const THAI_CALORIE_DATABASE = window.THAI_CALORIE_DATABASE = [
+    // ข้าว & อาหารจานเดียว
+    { keywords: ['กะเพราหมูสับ', 'กะเพราหมู'], name: 'ข้าวกะเพราหมูสับ', cal: 580, cat: '🍔 อาหาร & เครื่องดื่ม' },
+    { keywords: ['กะเพราไก่'], name: 'ข้าวกะเพราไก่', cal: 550, cat: '🍔 อาหาร & เครื่องดื่ม' },
+    { keywords: ['กะเพราเนื้อ'], name: 'ข้าวกะเพราเนื้อ', cal: 600, cat: '🍔 อาหาร & เครื่องดื่ม' },
+    { keywords: ['กะเพราทะเล', 'กะเพรากุ้ง', 'กะเพราปลาหมึก'], name: 'ข้าวกะเพราทะเล', cal: 520, cat: '🍔 อาหาร & เครื่องดื่ม' },
+    { keywords: ['กะเพรา'], name: 'ข้าวกะเพรา', cal: 580, cat: '🍔 อาหาร & เครื่องดื่ม' },
+    
+    { keywords: ['ข้าวมันไก่ทอด'], name: 'ข้าวมันไก่ทอด', cal: 690, cat: '🍔 อาหาร & เครื่องดื่ม' },
+    { keywords: ['ข้าวมันไก่ผสม', 'ข้าวมันไก่ทูโทน'], name: 'ข้าวมันไก่ผสม', cal: 650, cat: '🍔 อาหาร & เครื่องดื่ม' },
+    { keywords: ['ข้าวมันไก่ต้ม', 'ข้าวมันไก่'], name: 'ข้าวมันไก่', cal: 590, cat: '🍔 อาหาร & เครื่องดื่ม' },
+    
+    { keywords: ['ข้าวขาหมู'], name: 'ข้าวขาหมู', cal: 690, cat: '🍔 อาหาร & เครื่องดื่ม' },
+    { keywords: ['ข้าวหมูกรอบ'], name: 'ข้าวหมูกรอบ', cal: 650, cat: '🍔 อาหาร & เครื่องดื่ม' },
+    { keywords: ['ข้าวหมูแดง'], name: 'ข้าวหมูแดง', cal: 540, cat: '🍔 อาหาร & เครื่องดื่ม' },
+    
+    { keywords: ['ข้าวผัดกุ้ง', 'ข้าวผัดปู', 'ข้าวผัดทะเล'], name: 'ข้าวผัดทะเล', cal: 560, cat: '🍔 อาหาร & เครื่องดื่ม' },
+    { keywords: ['ข้าวผัดหมู', 'ข้าวผัดไก่', 'ข้าวผัด'], name: 'ข้าวผัด', cal: 550, cat: '🍔 อาหาร & เครื่องดื่ม' },
+    
+    { keywords: ['ข้าวไข่เจียวหมูสับ', 'ข้าวไข่เจียวทรงเครื่อง'], name: 'ข้าวไข่เจียวหมูสับ', cal: 580, cat: '🍔 อาหาร & เครื่องดื่ม' },
+    { keywords: ['ข้าวไข่เจียว'], name: 'ข้าวไข่เจียว', cal: 490, cat: '🍔 อาหาร & เครื่องดื่ม' },
+    { keywords: ['ข้าวไข่ข้น'], name: 'ข้าวไข่ข้น', cal: 450, cat: '🍔 อาหาร & เครื่องดื่ม' },
+    { keywords: ['ข้าวไข่ต้ม'], name: 'ข้าวไข่ต้ม', cal: 320, cat: '🍔 อาหาร & เครื่องดื่ม' },
+    
+    { keywords: ['ข้าวหมูทอด', 'ข้าวไก่ทอด'], name: 'ข้าวหมู/ไก่ทอด', cal: 620, cat: '🍔 อาหาร & เครื่องดื่ม' },
+    { keywords: ['ข้าวแกงกะหรี่'], name: 'ข้าวแกงกะหรี่', cal: 720, cat: '🍔 อาหาร & เครื่องดื่ม' },
+    { keywords: ['ข้าวหน้าเป็ด'], name: 'ข้าวหน้าเป็ด', cal: 520, cat: '🍔 อาหาร & เครื่องดื่ม' },
+    { keywords: ['ข้าวคลุกกะปิ'], name: 'ข้าวคลุกกะปิ', cal: 580, cat: '🍔 อาหาร & เครื่องดื่ม' },
+    { keywords: ['ข้าวเหนียวหมูปิ้ง', 'หมูปิ้ง'], name: 'ข้าวเหนียวหมูปิ้ง', cal: 380, cat: '🍔 อาหาร & เครื่องดื่ม' },
+    { keywords: ['ข้าวเหนียวไก่ทอด'], name: 'ข้าวเหนียวไก่ทอด', cal: 480, cat: '🍔 อาหาร & เครื่องดื่ม' },
+    { keywords: ['ข้าวต้มกุ้ง', 'ข้าวต้มปลา', 'ข้าวต้มหมู', 'ข้าวต้ม'], name: 'ข้าวต้ม', cal: 320, cat: '🍔 อาหาร & เครื่องดื่ม' },
+    { keywords: ['โจ๊กหมูใส่ไข่', 'โจ๊กหมูไข่'], name: 'โจ๊กหมูใส่ไข่', cal: 350, cat: '🍔 อาหาร & เครื่องดื่ม' },
+    { keywords: ['โจ๊กหมู', 'โจ๊ก'], name: 'โจ๊กหมู', cal: 260, cat: '🍔 อาหาร & เครื่องดื่ม' },
+
+    // ก๋วยเตี๋ยว & เส้น
+    { keywords: ['ผัดไทยกุ้งสด', 'ผัดไทย'], name: 'ผัดไทย', cal: 590, cat: '🍔 อาหาร & เครื่องดื่ม' },
+    { keywords: ['ผัดซีอิ๊วหมู', 'ผัดซีอิ๊ว'], name: 'ผัดซีอิ๊ว', cal: 600, cat: '🍔 อาหาร & เครื่องดื่ม' },
+    { keywords: ['ราดหน้าหมู', 'ราดหน้า'], name: 'ราดหน้า', cal: 420, cat: '🍔 อาหาร & เครื่องดื่ม' },
+    { keywords: ['ผัดขี้เมา'], name: 'ก๋วยเตี๋ยวผัดขี้เมา', cal: 540, cat: '🍔 อาหาร & เครื่องดื่ม' },
+    { keywords: ['ก๋วยเตี๋ยวเรือ', 'ก๋วยเตี๋ยวน้ำตก', 'เตี๋ยวเรือ'], name: 'ก๋วยเตี๋ยวน้ำตก', cal: 420, cat: '🍔 อาหาร & เครื่องดื่ม' },
+    { keywords: ['ก๋วยเตี๋ยวต้มยำ', 'เตี๋ยวต้มยำ'], name: 'ก๋วยเตี๋ยวต้มยำ', cal: 450, cat: '🍔 อาหาร & เครื่องดื่ม' },
+    { keywords: ['ก๋วยเตี๋ยวน้ำใส', 'ก๋วยเตี๋ยวไก่', 'ก๋วยเตี๋ยว'], name: 'ก๋วยเตี๋ยว', cal: 360, cat: '🍔 อาหาร & เครื่องดื่ม' },
+    { keywords: ['บะหมี่เกี๊ยวหมูแดง', 'บะหมี่เกี๊ยว', 'เกี๊ยวน้ำ'], name: 'บะหมี่เกี๊ยว', cal: 420, cat: '🍔 อาหาร & เครื่องดื่ม' },
+    { keywords: ['สปาเก็ตตี้คาโบนาร่า', 'คาโบนาร่า'], name: 'สปาเก็ตตี้คาโบนาร่า', cal: 650, cat: '🍔 อาหาร & เครื่องดื่ม' },
+    { keywords: ['สปาเก็ตตี้ขี้เมา', 'สปาเก็ตตี้'], name: 'สปาเก็ตตี้', cal: 480, cat: '🍔 อาหาร & เครื่องดื่ม' },
+    { keywords: ['มาม่าต้มยำ', 'มาม่าผัด', 'มาม่า'], name: 'บะหมี่กึ่งสำเร็จรูป/มาม่า', cal: 320, cat: '🍔 อาหาร & เครื่องดื่ม' },
+    { keywords: ['สุกี้แห้ง'], name: 'สุกี้แห้ง', cal: 450, cat: '🍔 อาหาร & เครื่องดื่ม' },
+    { keywords: ['สุกี้น้ำ'], name: 'สุกี้น้ำ', cal: 300, cat: '🍔 อาหาร & เครื่องดื่ม' },
+
+    // ส้มตำ & อีสาน & สุขภาพ
+    { keywords: ['ส้มตำปูปลาร้า', 'ส้มตำไทย', 'ส้มตำ'], name: 'ส้มตำ', cal: 120, cat: '🍔 อาหาร & เครื่องดื่ม' },
+    { keywords: ['ส้มตำคอหมูย่าง', 'ส้มตำปู'], name: 'ส้มตำ', cal: 180, cat: '🍔 อาหาร & เครื่องดื่ม' },
+    { keywords: ['ลาบหมู', 'ลาบไก่', 'ลาบ'], name: 'ลาบ', cal: 160, cat: '🍔 อาหาร & เครื่องดื่ม' },
+    { keywords: ['น้ำตกหมู', 'น้ำตกเนื้อ', 'น้ำตก'], name: 'น้ำตก', cal: 180, cat: '🍔 อาหาร & เครื่องดื่ม' },
+    { keywords: ['คอหมูย่าง'], name: 'คอหมูย่าง', cal: 350, cat: '🍔 อาหาร & เครื่องดื่ม' },
+    { keywords: ['ไก่ย่าง'], name: 'ไก่ย่าง (1 น่อง/สะโพก)', cal: 220, cat: '🍔 อาหาร & เครื่องดื่ม' },
+    { keywords: ['ไก่ทอด'], name: 'ไก่ทอด (1 ชิ้น)', cal: 320, cat: '🍔 อาหาร & เครื่องดื่ม' },
+    { keywords: ['ต้มแซ่บ'], name: 'ต้มแซ่บกระดูกหมู', cal: 180, cat: '🍔 อาหาร & เครื่องดื่ม' },
+    { keywords: ['ต้มยำกุ้ง', 'ต้มยำ'], name: 'ต้มยำกุ้ง', cal: 160, cat: '🍔 อาหาร & เครื่องดื่ม' },
+    { keywords: ['แกงจืดเต้าหู้หมูสับ', 'แกงจืด'], name: 'แกงจืดเต้าหู้หมูสับ', cal: 150, cat: '🍔 อาหาร & เครื่องดื่ม' },
+    { keywords: ['สลัดผักอกไก่', 'สลัดอกไก่'], name: 'สลัดอกไก่', cal: 220, cat: '🍔 อาหาร & เครื่องดื่ม' },
+    { keywords: ['สลัดผัก', 'สลัด'], name: 'สลัดผัก', cal: 140, cat: '🍔 อาหาร & เครื่องดื่ม' },
+    { keywords: ['อกไก่ต้ม', 'อกไก่'], name: 'อกไก่', cal: 160, cat: '🍔 อาหาร & เครื่องดื่ม' },
+
+    // เครื่องดื่ม
+    { keywords: ['อเมริกาโน่ไม่หวาน', 'อเมริกาโน่เย็น', 'อเมริกาโน่'], name: 'อเมริกาโน่', cal: 15, cat: '🍔 อาหาร & เครื่องดื่ม' },
+    { keywords: ['ลาเต้เย็น', 'ลาเต้'], name: 'ลาเต้', cal: 180, cat: '🍔 อาหาร & เครื่องดื่ม' },
+    { keywords: ['คาปูชิโน่เย็น', 'คาปูชิโน่'], name: 'คาปูชิโน่', cal: 170, cat: '🍔 อาหาร & เครื่องดื่ม' },
+    { keywords: ['มอคค่าเย็น', 'มอคค่า'], name: 'มอคค่า', cal: 260, cat: '🍔 อาหาร & เครื่องดื่ม' },
+    { keywords: ['กาแฟโบราณ', 'กาแฟเย็น', 'กาแฟ'], name: 'กาแฟเย็น', cal: 220, cat: '🍔 อาหาร & เครื่องดื่ม' },
+    { keywords: ['ชานมไข่มุก', 'ชาไข่มุก'], name: 'ชานมไข่มุก', cal: 360, cat: '🍔 อาหาร & เครื่องดื่ม' },
+    { keywords: ['ชาเขียวมัทฉะ', 'ชาเขียวเย็น', 'ชาเขียว'], name: 'ชาเขียวเย็น', cal: 220, cat: '🍔 อาหาร & เครื่องดื่ม' },
+    { keywords: ['ชาไทย', 'ชาเย็น', 'ชาดำเย็น'], name: 'ชาเย็น/ชาไทย', cal: 230, cat: '🍔 อาหาร & เครื่องดื่ม' },
+    { keywords: ['ชามะนาว'], name: 'ชามะนาว', cal: 150, cat: '🍔 อาหาร & เครื่องดื่ม' },
+    { keywords: ['น้ำส้มปั่น', 'น้ำผลไม้ปั่น', 'สมูทตี้'], name: 'น้ำผลไม้ปั่น', cal: 200, cat: '🍔 อาหาร & เครื่องดื่ม' },
+    { keywords: ['น้ำอัดลม', 'โค้ก', 'เป๊ปซี่', 'สไปรท์'], name: 'น้ำอัดลม', cal: 140, cat: '🍔 อาหาร & เครื่องดื่ม' },
+    { keywords: ['ช็อกโกแลตเย็น', 'โกโก้เย็น', 'โกโก้'], name: 'โกโก้เย็น', cal: 260, cat: '🍔 อาหาร & เครื่องดื่ม' },
+    { keywords: ['นมสดปั่น', 'นมสดเย็น', 'นมสด'], name: 'นมสด', cal: 200, cat: '🍔 อาหาร & เครื่องดื่ม' },
+
+    // ฟาสต์ฟู้ด & ของทานเล่น & บุฟเฟต์
+    { keywords: ['เบอร์เกอร์', 'แฮมเบอร์เกอร์'], name: 'แฮมเบอร์เกอร์', cal: 480, cat: '🍔 อาหาร & เครื่องดื่ม' },
+    { keywords: ['พิซซ่า'], name: 'พิซซ่า (1 ชิ้น)', cal: 280, cat: '🍔 อาหาร & เครื่องดื่ม' },
+    { keywords: ['เฟรนช์ฟรายส์', 'เฟรนฟราย'], name: 'เฟรนช์ฟรายส์', cal: 340, cat: '🍔 อาหาร & เครื่องดื่ม' },
+    { keywords: ['นักเก็ต'], name: 'นักเก็ตไก่ (6 ชิ้น)', cal: 280, cat: '🍔 อาหาร & เครื่องดื่ม' },
+    { keywords: ['แซนด์วิช', 'แซนวิช'], name: 'แซนด์วิช', cal: 260, cat: '🍔 อาหาร & เครื่องดื่ม' },
+    { keywords: ['ขนมปังปิ้ง', 'ขนมปัง'], name: 'ขนมปัง', cal: 180, cat: '🍔 อาหาร & เครื่องดื่ม' },
+    { keywords: ['ครัวซองต์', 'ครัวซอง'], name: 'ครัวซองต์', cal: 310, cat: '🍔 อาหาร & เครื่องดื่ม' },
+    { keywords: ['เค้ก'], name: 'เค้ก (1 ชิ้น)', cal: 350, cat: '🍔 อาหาร & เครื่องดื่ม' },
+    { keywords: ['ไอศกรีม', 'ไอติม'], name: 'ไอศกรีม', cal: 220, cat: '🍔 อาหาร & เครื่องดื่ม' },
+    { keywords: ['โรตี'], name: 'โรตี', cal: 380, cat: '🍔 อาหาร & เครื่องดื่ม' },
+    { keywords: ['บิงซู'], name: 'บิงซู', cal: 550, cat: '🍔 อาหาร & เครื่องดื่ม' },
+    { keywords: ['ชาบู', 'สุกี้ตี๋น้อย', 'หมูกระทะ'], name: 'ชาบู/หมูกระทะ', cal: 1200, cat: '🍔 อาหาร & เครื่องดื่ม' }
+];
+
+function calculateFoodCalories(foodText) {
+    const lower = String(foodText || '').toLowerCase().trim();
+    let baseCal = 0;
+    let matchedName = foodText;
+    let isFood = false;
+
+    // Search Database
+    for (const item of THAI_CALORIE_DATABASE) {
+        if (item.keywords.some(k => lower.includes(k))) {
+            baseCal = item.cal;
+            matchedName = item.name;
+            isFood = true;
+            break;
+        }
+    }
+
+    // Heuristic Fallback Estimation
+    if (!isFood) {
+        if (lower.includes('ข้าว') || lower.includes('อาหาร') || lower.includes('มื้อ')) {
+            baseCal = 520; isFood = true;
+        } else if (lower.includes('ผัด')) {
+            baseCal = 500; isFood = true;
+        } else if (lower.includes('ทอด')) {
+            baseCal = 480; isFood = true;
+        } else if (lower.includes('ต้ม') || lower.includes('แกง')) {
+            baseCal = 280; isFood = true;
+        } else if (lower.includes('ชา') || lower.includes('กาแฟ') || lower.includes('นม') || lower.includes('น้ำ')) {
+            baseCal = 180; isFood = true;
+        } else if (lower.includes('ขนม') || lower.includes('เค้ก') || lower.includes('ปัง')) {
+            baseCal = 300; isFood = true;
+        }
+    }
+
+    // Addons & Modifiers
+    let addonNote = '';
+    if (lower.includes('ไข่ดาว')) {
+        baseCal += 120;
+        addonNote = '(รวมไข่ดาว +120 kcal)';
+    } else if (lower.includes('ไข่เจียว') && !lower.includes('ข้าวไข่เจียว')) {
+        baseCal += 200;
+        addonNote = '(รวมไข่เจียว +200 kcal)';
+    } else if (lower.includes('ไข่ต้ม') && !lower.includes('ข้าวไข่ต้ม')) {
+        baseCal += 75;
+        addonNote = '(รวมไข่ต้ม +75 kcal)';
+    }
+
+    if (lower.includes('พิเศษ')) {
+        baseCal += 150;
+        addonNote += ' (พิเศษ +150 kcal)';
+    }
+
+    if (lower.includes('หวานน้อย')) {
+        baseCal = Math.max(10, baseCal - 50);
+        addonNote += ' (หวานน้อย -50 kcal)';
+    } else if (lower.includes('ไม่หวาน') || lower.includes('หวาน 0%')) {
+        baseCal = Math.max(5, baseCal - 80);
+        addonNote += ' (ไม่หวาน -80 kcal)';
+    }
+
+    return {
+        isFood,
+        calories: baseCal,
+        name: matchedName,
+        addonNote: addonNote.trim()
+    };
+}
+
+function extractFoodAndAmount(text) {
+    if (!text) return null;
+    let clean = String(text).trim();
+
+    // Ignore calendar / time / task phrases so "ไม่ว่างวันที่ 5" never deducts 5 baht
+    if (/(?:ไม่ว่างวันที่|ว่างวันที่|ลงปฏิทิน|นัด|ประชุม|ตารางงาน|งานค้าง|งานที่ส่ง)/i.test(clean)) {
+        return null;
+    }
+
+    // 1. Check if user is asking for daily summary (e.g. "วันนี้กินไปกี่แคล")
+    const summaryKeywords = ['วันนี้', 'เมื่อวาน', 'กินไป', 'ทานไป', 'สรุป', 'เช็ก', 'รวม'];
+    const calOnlyMatch = clean.toLowerCase().match(/^([ก-๙a-zA-Z\s]+?)\s*(?:กี่แคลอรี่|กี่แคล|แคลอรี่เท่าไหร่|แคลเท่าไหร่|มีกี่แคล)\??$/i);
+    if (calOnlyMatch) {
+        const queryFood = calOnlyMatch[1].trim();
+        if (summaryKeywords.some(k => queryFood.includes(k))) {
+            return null;
+        }
+        return { isQueryOnly: true, food: queryFood };
+    }
+
+    // Detect explicit Income intent
+    const isIncome = /(?:รายรับ|เงินเข้า|รับเงิน|โอนเข้า|ได้เงิน|เงินเดือน|โบนัส|ค่าขนมได้|เติมเงินเข้า|ทุน|กำไรเข้า)/i.test(clean);
+
+    // 2. Extract amount cleanly (supports 50, 1,200, 50.-, ฿50, 50฿, 50 บาท, 50 บ.)
+    const numRegex = /(?:฿\s*(\d+(?:,\d{3})*(?:\.\d+)?))|(?:(\d+(?:,\d{3})*(?:\.\d+)?)\s*(?:บาท|฿|\.-|บ\.|บ\b))|(?:(?:ราคา|ไป|จำนวน|จ่าย|รับ|เข้า|เป็นเงิน)?\s*(\d+(?:,\d{3})*(?:\.\d+)?)(?!\s*(?:วัน|เดือน|ปี|นาที|ชั่วโมง|ชม\.|แคล|kcal|%|:|\.\d)))/i;
+    const numMatch = clean.match(numRegex);
+    if (!numMatch) return null;
+
+    const rawNum = (numMatch[1] || numMatch[2] || numMatch[3] || '').replace(/,/g, '');
+    const amount = parseFloat(rawNum);
+    if (!amount || amount <= 0 || amount > 10000000) return null;
+
+    let remaining = clean
+        .replace(numMatch[0], ' ')
+        .replace(/(?:฿\s*\d+(?:,\d{3})*(?:\.\d+)?|\d+(?:,\d{3})*(?:\.\d+)?\s*(?:บาท|฿|\.-|บ\.|บ\b))/gi, ' ')
+        .replace(/(?:ช่วย|ให้หน่อย|คำนวณแคลอรี่|คำนวณแคล|คำนวณเงิน|คำนวณ|หักเงิน|หัก|ลบเงิน|ลบ|คิดเงิน|คิด|เพิ่ม|บันทึก|แคลอรี่|แคล|กี่แคล|ลบลงในรายรับรายจ่าย|ลงในรายรับรายจ่าย|บันทึกลงในรายรับรายจ่าย|ในรายรับรายจ่าย|รายรับรายจ่าย|รายจ่าย|รายรับ|เงินเข้า|รับเงิน|แล้วก็|และ|นะ|ค่ะ|ครับ|ดิฉัน|ฉัน|ผม|กิน|ทาน|ซื้อ|จ่าย|ค่า)/gi, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+
+    let foodTitle = remaining;
+    if (!foodTitle || foodTitle.length < 2) {
+        if (isIncome) {
+            foodTitle = 'รายรับส่วนตัว';
+        } else {
+            const prefixMatch = clean.match(/([ก-๙a-zA-Z\s]+?)\s*\d+/);
+            if (prefixMatch) {
+                foodTitle = prefixMatch[1].replace(/(?:กิน|ทาน|ซื้อ|จ่าย|ค่า|ช่วย|หักเงิน|หัก|ลบ|บันทึก|คำนวณ)/gi, '').trim();
+            }
+        }
+    }
+
+    if (!foodTitle || foodTitle.length < 2) return null;
+
+    return {
+        isQueryOnly: false,
+        isIncome: isIncome,
+        food: foodTitle,
+        amount: amount
+    };
+}
+
+window.calculateFoodCalories = calculateFoodCalories;
+window.extractFoodAndAmount = extractFoodAndAmount;
 
 class AIAssistantController {
     constructor() {
@@ -25,6 +251,9 @@ class AIAssistantController {
     }
 
     init() {
+        if (this._initialized) return;
+        this._initialized = true;
+
         this.chatMessagesContainer = document.getElementById('ai-chat-messages');
         this.inputElem = document.getElementById('ai-chat-input');
         
@@ -178,7 +407,10 @@ class AIAssistantController {
                         previewImg.src = evt.target.result;
                         previewBox.style.display = 'flex';
                     }
-                    if (this.inputElem) this.inputElem.value = "รบกวน Gemini AI วิเคราะห์ภาพเอกสารนัดประชุมนี้ แล้วลงปฏิทินให้หน่อยค่ะ";
+                    if (this.inputElem) {
+                        this.inputElem.placeholder = "ระบุราคา (ถ้ามี) เช่น 60 บาท หรือปล่อยว่างแล้วกดส่งได้เลยค่ะ...";
+                        this.inputElem.focus();
+                    }
                 };
                 reader.readAsDataURL(file);
             });
@@ -233,17 +465,59 @@ class AIAssistantController {
         if (actionType === 'briefing') {
             this.appendUserMessage('รายงานสรุปภาพรวมวันนี้ให้ดิฉันหน่อย');
             this.showTypingIndicatorAndRespond(() => {
-                const business = store.getBusiness();
+                const todayStr = this.getLocalDateStr();
+                const financeList = store.getFinance();
+                const totalIncome = financeList.filter(x => x.type === 'income').reduce((sum, x) => sum + Number(x.amount), 0);
+                const totalExpense = financeList.filter(x => x.type === 'expense').reduce((sum, x) => sum + Number(x.amount), 0);
+                const netBalance = totalIncome - totalExpense;
+
+                // Today's calories & meals
+                const todayMeals = financeList.filter(x => x.type === 'expense' && x.date === todayStr && (x.calories || (x.category && x.category.includes('อาหาร'))));
+                const totalCalories = todayMeals.reduce((sum, m) => sum + (Number(m.calories) || 450), 0);
+                const todayMealCost = todayMeals.reduce((sum, m) => sum + Number(m.amount || 0), 0);
+
                 const tasks = store.getTasks().filter(x => x.status !== 'completed');
+                const calendarData = store.getCalendar();
+                const todayData = calendarData[todayStr] || {};
+                const statusText = todayData.status === 'busy' ? '🔴 วันไม่ว่าง' : '🟢 วันว่าง';
 
-                const totalSales = business.filter(x => x.type === 'sale').reduce((sum, x) => sum + Number(x.amount), 0);
-                const totalCosts = business.filter(x => x.type === 'cost').reduce((sum, x) => sum + Number(x.amount), 0);
-                const netProfit = totalSales - totalCosts;
-                const margin = totalSales > 0 ? ((netProfit / totalSales) * 100).toFixed(1) : '0';
+                const reply = `✨ **รายงานสรุปสถานะส่วนตัววันนี้จากน้องธิดาค่ะ** 📋\n\n` +
+                    `💵 **สถานะการเงินส่วนตัว**:\n` +
+                    `• เงินคงเหลือสุทธิ: **฿${formatMoney(netBalance)}**\n` +
+                    `• รายรับส่วนตัว: ฿${formatMoney(totalIncome)} | รายจ่ายส่วนตัว: ฿${formatMoney(totalExpense)}\n\n` +
+                    `🥗 **แคลอรี่อาหารวันนี้**: **${totalCalories.toLocaleString()} / 2,000 kcal** (${todayMeals.length} มื้อ, รวมค่าอาหาร ฿${formatMoney(todayMealCost)})\n` +
+                    `📅 **สถานะปฏิทินวันนี้**: **${statusText}**\n` +
+                    `📝 **งานค้างที่ต้องทำ**: **${tasks.length} รายการ**\n\n` +
+                    `🔒 *(ข้อมูลการตรวจเช็กนี้เป็นส่วนตัว 100% ไม่เชื่อมต่อหรือปะปนกับรายได้ร้านค้าค่ะ)*`;
 
-                const reply = `✨ **รายงานสรุปจาก Gemini AI Executive Secretary ค่ะ** 📊\n\n• ยอดขายร้านค้าสะสม: ฿${formatMoney(totalSales)}\n• ต้นทุนวัตถุดิบ: ฿${formatMoney(totalCosts)}\n• **กำไรสุทธิร้านค้า**: ฿${formatMoney(netProfit)} (Margin ${margin}%)\n• 📋 งานค้างที่ต้องทำ: ${tasks.length} รายการ\n\nดิฉันพร้อมใช้ Gemini AI วิเคราะห์งานและบันทึกข้อมูลให้ทันทีค่ะ! ✨`;
                 this.appendAIMessage(reply);
                 this.saveToConversationHistory('user', 'รายงานสรุปภาพรวมวันนี้ให้ดิฉันหน่อย');
+                this.saveToConversationHistory('model', reply);
+            });
+        }
+        else if (actionType === 'calories') {
+            this.appendUserMessage('เช็กแคลอรี่และมื้ออาหารที่ทานวันนี้');
+            this.showTypingIndicatorAndRespond(() => {
+                const todayStr = this.getLocalDateStr();
+                const financeList = store.getFinance();
+                const todayMeals = financeList.filter(x => x.type === 'expense' && x.date === todayStr && (x.calories || (x.category && x.category.includes('อาหาร'))));
+                const totalCalories = todayMeals.reduce((sum, m) => sum + (Number(m.calories) || 450), 0);
+                const totalMealCost = todayMeals.reduce((sum, m) => sum + Number(m.amount || 0), 0);
+                const remaining = Math.max(0, 2000 - totalCalories);
+
+                let mealsList = todayMeals.length > 0
+                    ? todayMeals.map((m, idx) => `   ${idx + 1}. **${m.title}**: ~${m.calories || 450} kcal (-฿${formatMoney(m.amount)})`).join('\n')
+                    : '   • ยังไม่มีบันทึกมื้ออาหารวันนี้';
+
+                const reply = `🥗 **สรุปแคลอรี่และมื้ออาหารวันนี้จากน้องธิดาค่ะ** 🔥\n📅 วันที่ ${this.formatThaiDateStr(todayStr)}\n\n` +
+                    `• พลังงานที่ทานไป: **${totalCalories.toLocaleString()} / 2,000 kcal**\n` +
+                    `• โควตาที่ยังทานได้อีก: **~${remaining.toLocaleString()} kcal**\n` +
+                    `• รวมค่าอาหารวันนี้: **฿${formatMoney(totalMealCost)}** (หักลบจากรายจ่ายส่วนตัวเรียบร้อย)\n\n` +
+                    `📋 **รายการอาหารวันนี้ (${todayMeals.length} มื้อ)**:\n${mealsList}\n\n` +
+                    `💡 พิมพ์หรือพูดสั่งได้ทันที เช่น *"กะเพรา 25 บาท"* หรือ *"ชานมไข่มุก 45"* ระบบจะคำนวณแคลอรี่และหักเงินลงรายจ่ายส่วนตัวให้อัตโนมัติค่ะ 😊`;
+
+                this.appendAIMessage(reply);
+                this.saveToConversationHistory('user', 'เช็กแคลอรี่และมื้ออาหารที่ทานวันนี้');
                 this.saveToConversationHistory('model', reply);
             });
         }
@@ -255,7 +529,7 @@ class AIAssistantController {
                 const todayData = calendarData[todayStr] || {};
                 const statusText = todayData.status === 'busy' ? '🔴 วันไม่ว่าง' : '🟢 วันว่าง';
 
-                const reply = `✨ **รายงานตารางนัดหมายปฏิทินจาก Gemini AI ค่ะ** 📅\n\n• สถานะวันนี้ (${todayStr}): **${statusText}**\n• พิมพ์บอกช่วงวันได้ตามใจชอบเลยค่ะ เช่น *"ไม่ว่างวันที่ 2 - 7 เลย"* ดิฉันจะจัดการลงปฏิทินให้ทันทีค่ะ!`;
+                const reply = `✨ **รายงานตารางนัดหมายปฏิทินจากน้องธิดาค่ะ** 📅\n\n• สถานะวันนี้ (${todayStr}): **${statusText}**\n• พิมพ์บอกช่วงวันได้ตามใจชอบเลยค่ะ เช่น *"ไม่ว่างวันที่ 2 - 7 เลย"* ดิฉันจะจัดการลงปฏิทินให้ทันทีค่ะ!`;
                 this.appendAIMessage(reply);
                 this.saveToConversationHistory('user', 'เช็กตารางนัดหมายและวันว่างสัปดาห์นี้');
                 this.saveToConversationHistory('model', reply);
@@ -286,7 +560,7 @@ class AIAssistantController {
                     }
                 });
 
-                const reply = `✨ **วิเคราะห์ผลประกอบการร้านค้าโดย Gemini AI ค่ะ** 🛍️📈\n\n• ยอดขายรวม: ฿${formatMoney(totalSales)}\n• ต้นทุนวัตถุดิบรวม: ฿${formatMoney(totalCosts)}\n• **กำไรสุทธิ**: ฿${formatMoney(netProfit)}\n• สินค้าทำรายได้สูงสุด: **${topItem} (฿${formatMoney(topAmt)})**\n• อัตรากำไรสุทธิ (Profit Margin): **${margin}%**`;
+                const reply = `🏪 **วิเคราะห์ผลประกอบการร้านค้าโดยน้องธิดาค่ะ** 🛍️📈\n\n• ยอดขายรวม: ฿${formatMoney(totalSales)}\n• ต้นทุนวัตถุดิบรวม: ฿${formatMoney(totalCosts)}\n• **กำไรสุทธิร้านค้า**: ฿${formatMoney(netProfit)}\n• สินค้าทำรายได้สูงสุด: **${topItem} (฿${formatMoney(topAmt)})**\n• อัตรากำไรสุทธิ (Profit Margin): **${margin}%**\n\n📌 *(ข้อมูลส่วนนี้เป็นยอดขายร้านค้า แยกจากเงินส่วนตัวค่ะ)*`;
                 this.appendAIMessage(reply);
                 this.saveToConversationHistory('user', 'วิเคราะห์ยอดขายและกำไรให้หน่อย');
                 this.saveToConversationHistory('model', reply);
@@ -348,6 +622,10 @@ class AIAssistantController {
         }, 300);
     }
 
+    getApiBase() {
+        return window.location.protocol === 'file:' ? 'https://lifehub-app-sable.vercel.app' : '';
+    }
+
     handleUserSendMessage() {
         const inputElem = this.inputElem || document.getElementById('ai-chat-input');
         if (!inputElem) return;
@@ -360,7 +638,7 @@ class AIAssistantController {
         const hasImage = !!this.currentChatImageBase64;
         const chatImage = this.currentChatImageBase64;
 
-        this.appendUserMessage(text, chatImage);
+        this.appendUserMessage(text || (hasImage ? '📸 ส่งรูปภาพให้ช่วยวิเคราะห์ค่ะ' : ''), chatImage);
 
         inputElem.value = '';
         this.currentChatImageBase64 = null;
@@ -371,16 +649,152 @@ class AIAssistantController {
 
         if (this.geminiApiKey) {
             this.callDirectGeminiAPI(text, chatImage, typingId);
+        } else if (hasImage) {
+            this.callBackendImageAnalysis(chatImage, text, typingId);
         } else {
             setTimeout(() => {
                 this.removeTypingIndicator(typingId);
-                if (hasImage) {
-                    this.processAIImageOCR(chatImage, text);
-                } else {
-                    this.processConversationalAIMessage(text);
-                }
-            }, 300);
+                this.processConversationalAIMessage(text);
+            }, 180);
         }
+    }
+
+    async callBackendImageAnalysis(imageBase64, userPrompt, typingId) {
+        try {
+            const resp = await fetch(`${this.getApiBase()}/api/send-line`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'analyzeImage',
+                    imageBase64,
+                    prompt: userPrompt || ''
+                })
+            });
+            const data = await resp.json();
+            this.removeTypingIndicator(typingId);
+            if (resp.ok && data && data.success && data.result) {
+                this.handleBackendImageResult(data.result, userPrompt);
+                return;
+            }
+            throw new Error((data && data.error) || 'Backend image analysis unavailable');
+        } catch (err) {
+            console.warn('Backend Vision fallback:', err);
+            this.removeTypingIndicator(typingId);
+            this.processAIImageOCR(imageBase64, userPrompt, true);
+        }
+    }
+
+    handleBackendImageResult(result, userPrompt = '') {
+        const todayStr = this.getLocalDateStr();
+        const promptExtract = extractFoodAndAmount(userPrompt || '');
+        const parsedAmount = Number(result.amount || (promptExtract && promptExtract.amount) || 0);
+
+        if (result.type === 'slip') {
+            const slipTitle = result.merchant || result.dishName || 'สลิปโอนเงิน/ใบเสร็จ';
+            const detectedCal = Number(result.calories || 0);
+            const slipType = result.slipType === 'income' ? 'income' : 'expense';
+            const slipId = 'bank-slip-' + Date.now();
+
+            if (parsedAmount > 0 && /(?:รายรับ|เงินเข้า|รายจ่าย|จ่าย|หัก)/i.test(userPrompt || '')) {
+                this.commitFinanceSlipRecord({
+                    type: /(?:รายรับ|เงินเข้า)/i.test(userPrompt) ? 'income' : 'expense',
+                    title: slipTitle,
+                    amount: parsedAmount,
+                    calories: detectedCal > 0 ? detectedCal : null
+                });
+                return;
+            }
+
+            const actionCardHTML = `
+                <div class="digital-slip-card" id="${slipId}">
+                    <div class="slip-header">
+                        <span class="slip-badge-tag">🏦 BANK SLIP SCANNER</span>
+                        <span class="slip-status-badge">${slipType === 'income' ? '💰 รับเงิน' : '💸 จ่ายเงิน'}</span>
+                    </div>
+                    <div class="slip-title">${escapeHTML(slipTitle)}</div>
+                    <div class="slip-price-row">
+                        <span class="slip-price-amount">${parsedAmount > 0 ? `฿${formatMoney(parsedAmount)}` : 'ระบุยอดเงิน'}</span>
+                        ${detectedCal > 0 ? `<span class="slip-cal-pill">🔥 ~${detectedCal} kcal</span>` : ''}
+                    </div>
+                    <div class="slip-input-bar">
+                        <input type="number" id="${slipId}-input" class="slip-price-input" value="${parsedAmount > 0 ? parsedAmount : 100}" placeholder="จำนวนเงิน (บาท)">
+                        <button class="btn-slip-deduct" onclick="aiAssistantController.confirmMealExpense('${escape(slipTitle)}', ${detectedCal}, '${slipId}-input', '${slipId}', 'expense')">
+                            💸 ลงรายจ่าย
+                        </button>
+                    </div>
+                    <div class="slip-chips-row">
+                        <button type="button" class="slip-chip" style="border-color:#10b981;color:#10b981;" onclick="aiAssistantController.confirmMealExpense('${escape(slipTitle)}', 0, '${slipId}-input', '${slipId}', 'income')">💰 ลงเป็นรายรับ</button>
+                    </div>
+                </div>
+            `;
+            const msg = `🧾 **น้องธิดาอ่านสลิปเรียบร้อยค่ะ!**\n• รายการ: **${slipTitle}**\n• ยอดเงินที่อ่านได้: **${parsedAmount > 0 ? `฿${formatMoney(parsedAmount)}` : 'กรุณากรอกยอดเงิน'}**\n\nกดยืนยันด้านล่างเพื่อบันทึกลงบัญชีส่วนตัวได้เลยค่ะ 😊`;
+            this.appendAIMessage(msg, actionCardHTML);
+            this.saveToConversationHistory('model', msg);
+            return;
+        }
+
+        if (result.type === 'food') {
+            this.renderFoodAnalysisResult(
+                result.dishName || 'อาหารจานเดียว',
+                Number(result.calories) || 450,
+                parsedAmount
+            );
+            return;
+        }
+
+        const msg = result.replyText || '📸 น้องธิดาวิเคราะห์ภาพเรียบร้อยค่ะ หากต้องการบันทึกรายจ่ายสามารถพิมพ์ชื่อและจำนวนเงินได้เลยนะคะ 😊';
+        this.appendAIMessage(msg);
+        this.saveToConversationHistory('model', msg);
+    }
+
+    async callBackendAIChat(userText) {
+        const typingId = this.showTypingIndicator();
+        try {
+            const financeList = store.getFinance();
+            const totalIncome = financeList.filter(x => x.type === 'income').reduce((s, x) => s + Number(x.amount), 0);
+            const totalExpense = financeList.filter(x => x.type === 'expense').reduce((s, x) => s + Number(x.amount), 0);
+            const todayStr = this.getLocalDateStr();
+            const todayCalories = financeList
+                .filter(x => x.type === 'expense' && x.date === todayStr && (x.calories || (x.category && x.category.includes('อาหาร'))))
+                .reduce((s, m) => s + (Number(m.calories) || 0), 0);
+
+            const resp = await fetch(`${this.getApiBase()}/api/send-line`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'aiChat',
+                    text: userText,
+                    context: {
+                        todayStr,
+                        netBalance: totalIncome - totalExpense,
+                        todayCalories,
+                        pendingTasks: store.getTasks().filter(t => t.status !== 'completed').length
+                    }
+                })
+            });
+            const data = await resp.json();
+            this.removeTypingIndicator(typingId);
+            if (resp.ok && data && data.success && data.replyText) {
+                if (data.parsedAction && data.parsedAction.type === 'finance' && Number(data.parsedAction.amount) > 0) {
+                    this.commitFinanceSlipRecord({
+                        type: data.parsedAction.financeType === 'income' ? 'income' : 'expense',
+                        title: data.parsedAction.title || userText,
+                        amount: Number(data.parsedAction.amount),
+                        calories: Number(data.parsedAction.calories) || null
+                    });
+                    return;
+                }
+                this.appendAIMessage(data.replyText);
+                this.saveToConversationHistory('model', data.replyText);
+                return;
+            }
+        } catch (err) {
+            console.warn('Backend aiChat fallback:', err);
+        }
+        this.removeTypingIndicator(typingId);
+        const fallbackMsg = '✨ **สวัสดีค่ะคุณเจ้าของร้าน ดิฉันคือ "น้องธิดา" เลขาส่วนตัวค่ะ** 👩‍💼😊\nคุณสามารถสั่งงานได้ทันที เช่น:\n- *"กะเพรา 25 บาท"* (คำนวณแคลอรี่ + หักรายจ่าย)\n- *"รายรับ 500"* / *"เงินเข้า 1000"*\n- *"ลบรายการล่าสุด"* (ยกเลิกรายการเมื่อกี้)\n- *"วันนี้กินไปกี่แคล"* / *"เงินเหลือเท่าไหร่"*\n- *"ไม่ว่างวันที่ 5 ถึง 10"*';
+        this.appendAIMessage(fallbackMsg);
+        this.saveToConversationHistory('model', fallbackMsg);
     }
 
     saveToConversationHistory(role, text) {
@@ -391,7 +805,7 @@ class AIAssistantController {
     }
 
     callDirectGeminiAPI(userText, imageBase64, typingId) {
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${this.geminiApiKey}`;
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${this.geminiApiKey}`;
 
         let contextText = `คุณคือ 'น้องธิดา' (Thida) เลขาส่วนตัวอัจฉริยะของคุณเจ้าของร้าน พูดจาสุภาพ นอบน้อม ชาญฉลาด มีไหวพริบ แทนตัวเองว่า 'น้องธิดา' หรือ 'ธิดา' เสมอ\n\nประวัติการคุยก่อนหน้า:\n`;
 
@@ -653,11 +1067,13 @@ class AIAssistantController {
 
                 const isDuplicate = results.some(r => r.type === 'expense' && r.title === cleanTitle && r.amount === amount);
                 if (!isDuplicate) {
+                    const calInfo = calculateFoodCalories(cleanTitle);
                     results.push({
                         type: 'expense',
                         title: cleanTitle,
                         amount: amount,
-                        category: autoCategory
+                        category: autoCategory,
+                        calories: calInfo.isFood ? calInfo.calories : null
                     });
                 }
             }
@@ -710,6 +1126,168 @@ class AIAssistantController {
         return result;
     }
 
+    // 📅 SMART CALENDAR & APPOINTMENT NLP PARSER (รองรับ มีสอบ/หาหมอ/ธุระ, ระบุเวลา, วันที่เดี่ยว/ช่วงวัน, ยกเลิกนัด)
+    parseSmartCalendarAppointment(rawText) {
+        const norm = this.normalizeThaiText(rawText);
+        const lower = norm.toLowerCase();
+        const now = new Date();
+
+        // 1. Check if user is asking to clear / cancel busy status
+        const isCancel = lower.includes('ว่างแล้ว') || lower.includes('ยกเลิกนัด') || lower.includes('ลบนัด') || lower.includes('ลบวันไม่ว่าง') || lower.includes('เปลี่ยนเป็นว่าง');
+
+        // 2. Extract Time
+        let timeStr = 'ทั้งวัน';
+        const timeRangeMatch = norm.match(/(\d{1,2}[:.]\d{2})\s*(?:-|–|ถึง|จนถึง)\s*(\d{1,2}[:.]\d{2})\s*(?:น\.|น|นาฬิกา)?/i);
+        const thaiHourRangeMatch = norm.match(/(\d{1,2})\s*โมง(?:\s*เช้า|\s*บ่าย|\s*แลง)?\s*(?:ถึง|จนถึง|-)\s*(?:(เที่ยง)|(\d{1,2})\s*โมง(?:\s*เช้า|\s*บ่าย|\s*เย็น)?|(\d{1,2}[:.]\d{2}))/i);
+
+        if (timeRangeMatch) {
+            timeStr = `${timeRangeMatch[1].replace('.', ':')} - ${timeRangeMatch[2].replace('.', ':')} น.`;
+        } else if (thaiHourRangeMatch) {
+            let startH = parseInt(thaiHourRangeMatch[1], 10);
+            let endHStr = '';
+            if (thaiHourRangeMatch[2]) { // เที่ยง
+                endHStr = '12:00';
+            } else if (thaiHourRangeMatch[3]) {
+                let endH = parseInt(thaiHourRangeMatch[3], 10);
+                if (endH < 12 && (norm.includes('บ่าย') || endH <= 6)) endH += 12;
+                endHStr = `${String(endH).padStart(2, '0')}:00`;
+            } else if (thaiHourRangeMatch[4]) {
+                endHStr = thaiHourRangeMatch[4].replace('.', ':');
+            }
+            let startHStr = `${String(startH).padStart(2, '0')}:00`;
+            timeStr = `${startHStr} - ${endHStr} น.`;
+        } else if (norm.includes('ช่วงเช้า') || norm.includes('ตอนเช้า')) {
+            timeStr = 'ช่วงเช้า (09:00 - 12:00)';
+        } else if (norm.includes('ช่วงบ่าย') || norm.includes('ตอนบ่าย')) {
+            timeStr = 'ช่วงบ่าย (13:00 - 16:00)';
+        } else if (norm.includes('ช่วงเย็น') || norm.includes('ตอนเย็น')) {
+            timeStr = 'ช่วงเย็น (17:00 - 20:00)';
+        } else if (norm.includes('ช่วงค่ำ') || norm.includes('กลางคืน')) {
+            timeStr = 'ช่วงค่ำ (19:00 - 21:00)';
+        } else {
+            const singleTimeMatch = norm.match(/(\d{1,2}[:.]\d{2})\s*(?:น\.|น|นาฬิกา)?/i);
+            if (singleTimeMatch) {
+                timeStr = `${singleTimeMatch[1].replace('.', ':')} น.`;
+            }
+        }
+
+        // 3. Extract Dates
+        let targetDates = [];
+        // Check date range first: "วันที่ 1 ถึง 5", "1 - 5", "ตั้งแต่วันที่ 2 ถึง 7"
+        const rangeMatch = norm.match(/(?:วันที่\s*)?(\d{1,2})\s*(?:ถึง|จนถึง|ถึงวันที่|จนถึงวันที่|-)\s*(?:วันที่\s*)?(\d{1,2})/i);
+        if (rangeMatch) {
+            const sDay = parseInt(rangeMatch[1], 10);
+            const eDay = parseInt(rangeMatch[2], 10);
+            if (sDay >= 1 && sDay <= 31 && eDay >= 1 && eDay <= 31) {
+                let m = now.getMonth();
+                let y = now.getFullYear();
+                if (sDay < now.getDate() && !norm.includes('ส.ค.') && !norm.includes('กันยา')) {
+                    m++;
+                    if (m > 11) { m = 0; y++; }
+                }
+                let cur = new Date(y, m, sDay);
+                let end = new Date(y, eDay < sDay ? m + 1 : m, eDay);
+                while (cur <= end) {
+                    targetDates.push(this.getLocalDateStr(cur));
+                    cur.setDate(cur.getDate() + 1);
+                }
+            }
+        }
+
+        if (targetDates.length === 0) {
+            // Check relative date words
+            let dObj = null;
+            if (norm.includes('พรุ่งนี้')) {
+                dObj = new Date(now.getTime() + 86400000);
+            } else if (norm.includes('มะรืน')) {
+                dObj = new Date(now.getTime() + 86400000 * 2);
+            } else if (norm.includes('วันนี้')) {
+                dObj = new Date(now.getTime());
+            } else if (norm.includes('เสาร์นี้')) {
+                const daysUntilSat = (6 - now.getDay() + 7) % 7;
+                dObj = new Date(now.getTime() + daysUntilSat * 86400000);
+            } else if (norm.includes('อาทิตย์นี้')) {
+                const daysUntilSun = (7 - now.getDay()) % 7;
+                dObj = new Date(now.getTime() + daysUntilSun * 86400000);
+            } else {
+                const dayMatch = norm.match(/วันที่\s*(\d{1,2})/i) || norm.match(/(?:วัน\s*)?(\d{1,2})\s*(?:ม\.ค|ก\.พ|มี\.ค|เม\.ย|พ\.ค|มิ\.ย|ก\.ค|ส\.ค|ก\.ย|ต\.ค|พ\.ย|ธ\.ค|ตุลา|กันยา)/i);
+                if (dayMatch) {
+                    const dayNum = parseInt(dayMatch[1], 10);
+                    if (dayNum >= 1 && dayNum <= 31) {
+                        let y = now.getFullYear();
+                        let m = now.getMonth();
+                        if (dayNum < now.getDate() && !norm.includes('ส.ค.') && !norm.includes('กันยา')) {
+                            m++;
+                            if (m > 11) { m = 0; y++; }
+                        }
+                        dObj = new Date(y, m, dayNum);
+                    }
+                }
+            }
+
+            if (dObj) {
+                targetDates.push(this.getLocalDateStr(dObj));
+            }
+        }
+
+        // 4. Extract Activity / Reason Title
+        let title = '';
+        const knownActivities = [
+            'มีสอบ', 'สอบ', 'ไปหาหมอ', 'นัดหมอ', 'ตรวจฟัน', 'ทำฟัน',
+            'คุยกับผู้ใหญ่', 'ประชุม', 'สัมภาษณ์งาน', 'สัมภาษณ์',
+            'ไปงานแต่ง', 'งานแต่ง', 'ไปต่างจังหวัด', 'ไปเที่ยว',
+            'ต่อใบขับขี่', 'ติดธุระ', 'ธุระส่วนตัว', 'ธุระ'
+        ];
+        for (const act of knownActivities) {
+            if (norm.includes(act)) {
+                title = act;
+                const actIdx = rawText.indexOf(act);
+                if (actIdx !== -1) {
+                    const tail = rawText.substring(actIdx + act.length);
+                    const normTail = this.normalizeThaiText(tail);
+                    const cleanTail = normTail
+                        .replace(/\d{1,2}[:.]\d{2}\s*[-–ถึง]\s*\d{1,2}[:.]\d{2}/g, '')
+                        .replace(/\d{1,2}\s*โมง(?:\s*เช้า|\s*บ่าย|\s*แลง)?\s*(?:ถึง|จนถึง|-)\s*(?:เที่ยง|\d{1,2}\s*โมง|\d{1,2}[:.]\d{2})/gi, '')
+                        .replace(/\d{1,2}[:.]\d{2}/g, '')
+                        .replace(/ช่วง\s*(?:เช้า|บ่าย|เย็น|ค่ำ|กลางคืน)/g, '')
+                        .replace(/ตอน\s*(?:เช้า|บ่าย|เย็น|ค่ำ|กลางคืน)/g, '')
+                        .replace(/เวลา\s*[^,\s]+/g, '')
+                        .replace(/วันที่\s*\d{1,2}/g, '')
+                        .replace(/ทั้งวัน|ให้หน่อย|ช่วย|ครับ|ค่ะ|คะ|นะ|นะคะ/g, '')
+                        .trim();
+                    if (cleanTail.length > 0 && cleanTail.length < 25) {
+                        title = `${act} ${cleanTail}`.trim();
+                    }
+                }
+                break;
+            }
+        }
+
+        if (!title) {
+            let cleaned = rawText
+                .replace(/สมมุติฉัน|สมมุติว่า|สมมุติ|ฉัน|ผม|ช่วย|ให้หน่อย|บันทึกให้หน่อย|เพิ่มลงปฏิทินให้หน่อย|ลงปฏิทิน|เพิ่มลงปฏิทิน|บันทึกปฏิทิน|ปฏิทิน/g, '')
+                .replace(/วันที่\s*\d{1,2}/g, '')
+                .replace(/พรุ่งนี้|มะรืนนี้|มะรืน|วันนี้/g, '')
+                .replace(/เวลา\s*[^,\s]+/g, '')
+                .replace(/ช่วง\s*(?:เช้า|บ่าย|เย็น|ค่ำ|กลางคืน)/g, '')
+                .replace(/\d{1,2}[:.]\d{2}\s*[-–ถึง]\s*\d{1,2}[:.]\d{2}/g, '')
+                .replace(/ไม่ว่าง/g, '')
+                .trim();
+            if (cleaned.length >= 2) {
+                title = cleaned;
+            } else {
+                title = 'ติดภารกิจ/ไม่ว่าง';
+            }
+        }
+
+        return {
+            isCancel,
+            targetDates,
+            time: timeStr,
+            title
+        };
+    }
+
     processConversationalAIMessage(text, geminiDirectReply = null) {
         this.saveToConversationHistory('user', text);
 
@@ -758,7 +1336,106 @@ class AIAssistantController {
             return;
         }
 
-        // 3. CHECK MULTI-TRANSACTION COMPOUND SENTENCE WITH RELATIVE DATE
+        // 2.5 UNDO LAST FINANCE TRANSACTION INTENT
+        if (/(?:ลบรายการล่าสุด|ยกเลิกรายการล่าสุด|ยกเลิกเมื่อกี้|ลบล่าสุด|ลบอันเมื่อกี้|ยกเลิกอันเมื่อกี้)/i.test(lower)) {
+            const deleted = this.undoLastFinanceItem();
+            return;
+        }
+
+        // 3. CALORIE & FOOD TRACKING & EXPENSE/INCOME AUTO-SLIP INTENT
+        const extractedFood = extractFoodAndAmount(text);
+        if (extractedFood) {
+            const calInfo = calculateFoodCalories(extractedFood.food);
+
+            if (extractedFood.isQueryOnly) {
+                const replyMsg = `🥗 **ข้อมูลแคลอรี่เมนู "${calInfo.name || extractedFood.food}" จากน้องธิดาค่ะ** 🔥\n\n` +
+                    `• พลังงานโดยประมาณ: **~${calInfo.calories} kcal** ${calInfo.addonNote ? `\n• ${calInfo.addonNote}` : ''}\n\n` +
+                    `💡 *หากทานเมนูนี้และต้องการบันทึกลงรายรับรายจ่ายส่วนตัว สามารถพิมพ์บอกราคาได้เลยนะคะ เช่น "${extractedFood.food} 25 บาท" น้องธิดาจะหักเงินและบันทึกแคลอรี่ให้ทันทีค่ะ 😊*`;
+
+                this.appendAIMessage(replyMsg);
+                this.saveToConversationHistory('model', replyMsg);
+                return;
+            }
+
+            const todayStr = this.getLocalDateStr();
+            const dateToUse = targetDateStr || todayStr;
+            if (extractedFood.isIncome) {
+                this.commitFinanceSlipRecord({
+                    type: 'income',
+                    category: '💰 รายรับส่วนตัว',
+                    title: extractedFood.food,
+                    amount: extractedFood.amount,
+                    calories: null,
+                    date: dateToUse,
+                    note: `บันทึกรายรับส่วนตัวโดยน้องธิดา (${this.formatThaiDateStr(dateToUse)})`
+                });
+                return;
+            }
+
+            const category = calInfo.isFood ? '🍔 อาหาร & เครื่องดื่ม' : this.detectSmartCategory(extractedFood.food);
+            const foodTitle = calInfo.isFood ? (calInfo.name || extractedFood.food) : extractedFood.food;
+            this.commitFinanceSlipRecord({
+                type: 'expense',
+                category: category,
+                title: foodTitle,
+                amount: extractedFood.amount,
+                calories: calInfo.isFood ? calInfo.calories : null,
+                date: dateToUse,
+                note: calInfo.isFood
+                    ? `คำนวณแคลอรี่ (${calInfo.calories} kcal) และหักลบรายจ่ายส่วนตัวอัตโนมัติ ${calInfo.addonNote || ''}`.trim()
+                    : `บันทึกรายจ่ายส่วนตัวอัตโนมัติโดยน้องธิดา (${this.formatThaiDateStr(dateToUse)})`
+            });
+            return;
+        }
+
+        // 4. DAILY CALORIE SUMMARY INTENT (เช่น "วันนี้กินไปกี่แคล", "กินไปกี่แคลแล้ว", "สรุปแคลอรี่", "แคลอรี่วันนี้", "เช็กแคลอรี่")
+        if (lower.includes('กี่แคล') || lower.includes('สรุปแคล') || lower.includes('เช็กแคล') || lower.includes('แคลอรี่วันนี้') || lower.includes('กินไปเท่าไหร่')) {
+            const todayStr = this.getLocalDateStr();
+            const financeList = store.getFinance();
+            const todayMeals = financeList.filter(x => 
+                x.type === 'expense' && 
+                x.date === todayStr && 
+                (x.calories || (x.category && x.category.includes('อาหาร')))
+            );
+            const totalCalories = todayMeals.reduce((sum, m) => sum + (Number(m.calories) || 450), 0);
+            const totalMealCost = todayMeals.reduce((sum, m) => sum + Number(m.amount || 0), 0);
+            const remaining = Math.max(0, 2000 - totalCalories);
+
+            let mealsList = todayMeals.length > 0
+                ? todayMeals.map((m, idx) => `   ${idx + 1}. **${m.title}**: ~${m.calories || 450} kcal (-฿${formatMoney(m.amount)})`).join('\n')
+                : '   • ยังไม่มีบันทึกมื้ออาหารวันนี้';
+
+            const replyMsg = `🥗 **สรุปแคลอรี่และมื้ออาหารวันนี้จากน้องธิดาค่ะ** 🔥\n📅 วันที่ ${this.formatThaiDateStr(todayStr)}\n\n` +
+                `• พลังงานที่ทานไป: **${totalCalories.toLocaleString()} / 2,000 kcal**\n` +
+                `• โควตาที่ยังทานได้อีก: **~${remaining.toLocaleString()} kcal**\n` +
+                `• รวมค่าอาหารวันนี้: **฿${formatMoney(totalMealCost)}** (หักลบจากรายจ่ายส่วนตัวเรียบร้อย)\n\n` +
+                `📋 **รายการอาหารวันนี้ (${todayMeals.length} มื้อ)**:\n${mealsList}\n\n` +
+                `💡 พิมพ์สั่งได้ทันที เช่น *"กะเพรา 25 บาท"* น้องธิดาจะคำนวณแคลอรี่และหักลบรายจ่ายส่วนตัวให้ทันทีค่ะ 😊`;
+
+            this.appendAIMessage(replyMsg);
+            this.saveToConversationHistory('model', replyMsg);
+            return;
+        }
+
+        // 5. PERSONAL BALANCE QUERY INTENT (เช่น "เงินเหลือเท่าไหร่", "เงินคงเหลือ", "เช็กเงิน", "ยอดเงินส่วนตัว", "เงินส่วนตัวเหลือเท่าไหร่")
+        if ((lower.includes('เงินเหลือ') || lower.includes('เงินคงเหลือ') || lower.includes('เช็กเงิน') || lower.includes('ยอดเงิน')) && !lower.includes('ร้าน') && !lower.includes('ยอดขาย')) {
+            const financeList = store.getFinance();
+            const totalIncome = financeList.filter(x => x.type === 'income').reduce((sum, x) => sum + Number(x.amount), 0);
+            const totalExpense = financeList.filter(x => x.type === 'expense').reduce((sum, x) => sum + Number(x.amount), 0);
+            const netBalance = totalIncome - totalExpense;
+
+            const replyMsg = `💵 **รายงานยอดเงินคงเหลือส่วนตัวจากน้องธิดาค่ะ** 💳\n\n` +
+                `• เงินคงเหลือสุทธิ: **฿${formatMoney(netBalance)}**\n` +
+                `• รายรับส่วนตัวสะสม: ฿${formatMoney(totalIncome)}\n` +
+                `• รายจ่ายส่วนตัวสะสม: ฿${formatMoney(totalExpense)}\n\n` +
+                `🔒 *(ข้อมูลนี้เป็นรายรับ-รายจ่ายส่วนตัวของคุณ 100% แยกส่วนชัดเจน ไม่ปะปนกับยอดขายหรือกำไรของร้านค้าค่ะ)*`;
+
+            this.appendAIMessage(replyMsg);
+            this.saveToConversationHistory('model', replyMsg);
+            return;
+        }
+
+        // 6. CHECK MULTI-TRANSACTION COMPOUND SENTENCE WITH RELATIVE DATE
         const parsedTransactions = this.parseMultiTransactions(text, targetDateStr);
         if (parsedTransactions && parsedTransactions.length > 0) {
             let incomeTotal = 0;
@@ -773,6 +1450,7 @@ class AIAssistantController {
                     category: item.category,
                     title: item.title,
                     amount: item.amount,
+                    calories: item.calories || null,
                     note: `บันทึกและจำแนกหมวดหมู่อัตโนมัติโดย Gemini AI (${this.formatThaiDateStr(targetDateStr)})`
                 });
 
@@ -781,7 +1459,8 @@ class AIAssistantController {
                     incomeLines.push(`• ${item.title}: ฿${formatMoney(item.amount)} [${item.category}]`);
                 } else {
                     expenseTotal += item.amount;
-                    expenseLines.push(`• ${item.title}: ฿${formatMoney(item.amount)} [หมวด: ${item.category}]`);
+                    const calBadge = item.calories ? ` (~${item.calories} kcal)` : '';
+                    expenseLines.push(`• ${item.title}${calBadge}: ฿${formatMoney(item.amount)} [หมวด: ${item.category}]`);
                 }
             });
 
@@ -820,36 +1499,84 @@ class AIAssistantController {
             return;
         }
 
-        // 4. SINGLE DATE CALENDAR APPOINTMENT ("คุยกับผู้ใหญ่วันที่ 2 เพิ่มลงปฏิทินให้หน่อย")
-        if (lower.includes('ปฏิทิน') || lower.includes('นัด') || lower.includes('คุยกับผู้ใหญ่') || lower.includes('วันที่')) {
-            const dayMatch = text.match(/วันที่\s*(\d{1,2})/i) || normalizedText.match(/วันที่\s*(\d{1,2})/i);
-            if (dayMatch) {
-                const dayNum = parseInt(dayMatch[1], 10);
-                if (dayNum >= 1 && dayNum <= 31) {
-                    const nowObj = new Date();
-                    const year = nowObj.getFullYear();
-                    const month = String(nowObj.getMonth() + 1).padStart(2, '0');
-                    const targetStr = `${year}-${month}-${String(dayNum).padStart(2, '0')}`;
+        // 4. SMART CALENDAR & APPOINTMENT HANDLER (มีสอบ, หาหมอ, ธุระ, ระบุเวลา, วันไม่ว่าง, ปลดล็อควันว่าง)
+        const isCalendarIntent =
+            lower.includes('ปฏิทิน') ||
+            lower.includes('ไม่ว่าง') ||
+            lower.includes('ติดธุระ') ||
+            lower.includes('มีสอบ') ||
+            lower.includes('สอบ') ||
+            lower.includes('มีนัด') ||
+            lower.includes('นัดหมาย') ||
+            lower.includes('นัดหมอ') ||
+            lower.includes('หาหมอ') ||
+            lower.includes('ตรวจฟัน') ||
+            lower.includes('ทำฟัน') ||
+            lower.includes('สัมภาษณ์') ||
+            lower.includes('คุยกับผู้ใหญ่') ||
+            lower.includes('ไปงานแต่ง') ||
+            lower.includes('งานแต่ง') ||
+            lower.includes('ไปต่างจังหวัด') ||
+            lower.includes('ต่อใบขับขี่') ||
+            lower.includes('ยกเลิกนัด') ||
+            lower.includes('ว่างแล้ว') ||
+            lower.includes('เปลี่ยนเป็นว่าง') ||
+            ((lower.includes('วันที่') || lower.includes('พรุ่งนี้') || lower.includes('มะรืน')) &&
+             (lower.includes('นัด') || lower.includes('ธุระ') || lower.includes('ไป') || lower.includes('เวลา') || lower.includes('ช่วง')));
 
-                    let eventTitle = text.replace(/เพิ่มลงปฏิทินให้หน่อย|ลงปฏิทิน|เพิ่มลงปฏิทิน|ช่วยบันทึก|ให้หน่อย/gi, '').trim();
-                    if (!eventTitle || eventTitle.length < 2) eventTitle = 'คุยกับผู้ใหญ่';
-
-                    const calendarData = store.getCalendar();
-                    if (!calendarData[targetStr]) calendarData[targetStr] = {};
-                    calendarData[targetStr].status = 'busy';
-                    calendarData[targetStr].title = eventTitle;
-                    localStorage.setItem(STORAGE_KEYS.CALENDAR, JSON.stringify(calendarData));
-                    store.notifyListeners('calendar');
-
+        if (isCalendarIntent) {
+            const calResult = this.parseSmartCalendarAppointment(text);
+            if (calResult.targetDates && calResult.targetDates.length > 0) {
+                if (calResult.isCancel) {
+                    calResult.targetDates.forEach(dStr => {
+                        store.clearCalendarDay(dStr);
+                    });
                     if (window.calendarController) window.calendarController.render();
 
-                    const formattedDate = this.formatThaiDateStr(targetStr);
-                    const replyMsg = `✨ **บันทึกนัดหมายลงปฏิทินเรียบร้อยแล้วค่ะคุณเจ้าของร้าน!** 📅\n\n📌 **นัดหมาย**: ${eventTitle}\n📅 **วันที่**: ${formattedDate}\n🔴 **สถานะ**: บันทึกเป็นวันไม่ว่างในปฏิทินแล้วค่ะ 😊`;
+                    const dateLabel = calResult.targetDates.length === 1 
+                        ? this.formatThaiDateStr(calResult.targetDates[0])
+                        : `${this.formatThaiDateStr(calResult.targetDates[0])} - ${this.formatThaiDateStr(calResult.targetDates[calResult.targetDates.length - 1])}`;
+
+                    const replyMsg = `✨ **ปลดล็อคสถานะเรียบร้อยแล้วค่ะคุณเจ้าของร้าน!** 🟢\n📅 ยกเลิกนัดหมายวันที่ **${dateLabel}** และเปลี่ยนเป็น **"วันว่าง"** ในปฏิทินให้เรียบร้อยแล้วค่ะ 😊`;
+                    const actionCardHTML = `
+                        <div class="ai-action-card">
+                            <div class="action-card-header">🟢 ยกเลิกนัดหมายแล้ว (${dateLabel})</div>
+                            <div class="action-card-body">เปลี่ยนสถานะเป็นวันว่างในระบบเรียบร้อยแล้วค่ะ</div>
+                            <div class="action-card-buttons">
+                                <button class="action-card-btn action-card-btn-primary" onclick="appController.switchTab('calendar')">📅 เปิดดูปฏิทิน</button>
+                            </div>
+                        </div>
+                    `;
+                    this.appendAIMessage(replyMsg, actionCardHTML);
+                    this.saveToConversationHistory('model', replyMsg);
+                    return;
+                } else {
+                    calResult.targetDates.forEach(dStr => {
+                        store.setCalendarDay(dStr, {
+                            status: 'busy',
+                            title: calResult.title,
+                            time: calResult.time
+                        });
+                    });
+                    if (window.calendarController) window.calendarController.render();
+
+                    const isSingle = calResult.targetDates.length === 1;
+                    const dateLabel = isSingle 
+                        ? this.formatThaiDateStr(calResult.targetDates[0])
+                        : `${this.formatThaiDateStr(calResult.targetDates[0])} ถึง ${this.formatThaiDateStr(calResult.targetDates[calResult.targetDates.length - 1])} (รวม ${calResult.targetDates.length} วัน)`;
+
+                    const replyMsg = isSingle
+                        ? `✨ **บันทึกกิจกรรมและวันไม่ว่างลงปฏิทินเรียบร้อยแล้วค่ะคุณเจ้าของร้าน!** 📅🔴\n\n📌 **กิจกรรม/เหตุผล**: ${calResult.title}\n📅 **วันที่**: ${dateLabel}\n⏰ **เวลา**: ${calResult.time}\n🔴 **สถานะ**: บันทึกเป็นวันไม่ว่าง พร้อมเชื่อมต่อระบบส่งสรุปยามเช้าใน LINE อัตโนมัติแล้วค่ะ 😊`
+                        : `✨ **บันทึกช่วงวันไม่ว่างลงปฏิทินเรียบร้อยแล้วค่ะคุณเจ้าของร้าน!** 📅🔴\n\n📌 **กิจกรรม/เหตุผล**: ${calResult.title}\n📅 **ช่วงวันที่**: ${dateLabel}\n⏰ **เวลา**: ${calResult.time}\n🔴 **สถานะ**: บันทึกเป็นวันไม่ว่างเรียบร้อยแล้วค่ะ 😊`;
 
                     const actionCardHTML = `
                         <div class="ai-action-card">
-                            <div class="action-card-header">📅 เพิ่มนัดหมายลงปฏิทินแล้ว (${formattedDate})</div>
-                            <div class="action-card-body">${eventTitle}</div>
+                            <div class="action-card-header">📅 บันทึกวันไม่ว่างลงปฏิทินแล้ว (${isSingle ? this.formatThaiDateStr(calResult.targetDates[0]) : `${this.formatThaiDateStr(calResult.targetDates[0])} - ${this.formatThaiDateStr(calResult.targetDates[calResult.targetDates.length - 1])}`})</div>
+                            <div class="action-card-body">
+                                <div><strong>📌 กิจกรรม:</strong> ${calResult.title}</div>
+                                <div><strong>⏰ เวลา:</strong> ${calResult.time}</div>
+                                <div style="margin-top: 4px; font-size: 0.82rem; color: #64748b;">ข้อมูลบันทึกและซิงค์ขึ้น Cloud พร้อมรายงานใน LINE อัตโนมัติ</div>
+                            </div>
                             <div class="action-card-buttons">
                                 <button class="action-card-btn action-card-btn-primary" onclick="appController.switchTab('calendar')">📅 เปิดดูปฏิทิน</button>
                             </div>
@@ -863,101 +1590,217 @@ class AIAssistantController {
             }
         }
 
-        // 5. DATE RANGE DETECTED ("ไม่ว่างตั้งแต่วันที่ 2 จนถึงวันที่ 7")
-        const dateRangeArray = this.parseThaiDateRange(text);
-        if (dateRangeArray && dateRangeArray.length > 0) {
-            const calendarData = store.getCalendar();
-            dateRangeArray.forEach(dStr => {
-                if (!calendarData[dStr]) calendarData[dStr] = {};
-                calendarData[dStr].status = 'busy';
-                calendarData[dStr].title = 'ติดภารกิจ/ไม่ว่าง';
-            });
-            localStorage.setItem(STORAGE_KEYS.CALENDAR, JSON.stringify(calendarData));
-            store.notifyListeners('calendar');
-
-            if (window.calendarController) window.calendarController.render();
-
-            const startText = this.formatThaiDateStr(dateRangeArray[0]);
-            const endText = this.formatThaiDateStr(dateRangeArray[dateRangeArray.length - 1]);
-
-            const replyMsg = `✨ **รับทราบคำสั่งค่ะ!** Gemini AI บันทึกช่วงวันที่ **${startText} ถึง ${endText} (รวม ${dateRangeArray.length} วัน)** เป็น 🔴 **วันไม่ว่าง** ลงปฏิทินเรียบร้อยแล้วค่ะ 😊`;
-
-            const actionCardHTML = `
-                <div class="ai-action-card">
-                    <div class="action-card-header">📅 บันทึกวันไม่ว่างลงปฏิทินเรียบร้อย (${startText} - ${endText})</div>
-                    <div class="action-card-buttons">
-                        <button class="action-card-btn action-card-btn-primary" onclick="appController.switchTab('calendar')">📅 เปิดดูปฏิทิน</button>
-                    </div>
-                </div>
-            `;
-
-            this.appendAIMessage(replyMsg, actionCardHTML);
-            this.saveToConversationHistory('model', replyMsg);
-            return;
-        }
-
-        // 6. SINGLE RELATIVE DATE ("พรุ่งนี้ไม่ว่าง" / "เสาร์อาทิตย์นี้ไม่ว่าง")
-        if (lower.includes('ไม่ว่าง') || lower.includes('ติดธุระ')) {
-            const thaiDate = this.formatThaiDateStr(targetDateStr);
-
-            const calendarData = store.getCalendar();
-            if (!calendarData[targetDateStr]) calendarData[targetDateStr] = {};
-            calendarData[targetDateStr].status = 'busy';
-            calendarData[targetDateStr].title = 'ติดภารกิจ/ไม่ว่าง';
-            localStorage.setItem(STORAGE_KEYS.CALENDAR, JSON.stringify(calendarData));
-            store.notifyListeners('calendar');
-
-            if (window.calendarController) window.calendarController.render();
-
-            const replyMsg = '✨ **รับทราบคำสั่งค่ะ!** Gemini AI บันทึกวันที่ **' + thaiDate + '** เป็น 🔴 **วันไม่ว่าง** ลงปฏิทินเรียบร้อยแล้วค่ะ 😊';
-
-            this.appendAIMessage(replyMsg);
-            this.saveToConversationHistory('model', replyMsg);
-            return;
-        }
-
         // 7. IF GEMINI DIRECT API REPLIED
         if (geminiDirectReply) {
-            this.appendAIMessage('✨ **Gemini 1.5 Pro**: ' + geminiDirectReply);
+            this.appendAIMessage('✨ **Gemini AI**: ' + geminiDirectReply);
             this.saveToConversationHistory('model', geminiDirectReply);
             return;
         }
 
-        // FALLBACK
-        const fallbackMsg = '✨ **สวัสดีค่ะคุณเจ้าของร้าน ดิฉันคือ "น้องธิดา" (Thida) เลขาส่วนตัวอัจฉริยะของคุณค่ะ** 👩‍💼😊\nคุณสามารถพูดสั่งงานด้วยเสียง 🎙️ หรือพิมพ์สั่งงานภาษาพูดธรรมชาติได้ทุกรูปแบบเลยนะคะ เช่น:\n- *"คุยกับผู้ใหญ่วันที่ 2 เพิ่มลงปฏิทินให้หน่อย"*\n- *"เมื่อวานฉันรับเงินมา 2500 จ่ายค่าตัดผมไป 140 บาท"*\n- *"สรุปยอดขายร้านวันนี้ให้หน่อย"*\n- *"ไม่ว่างวันที่ 5 ถึง 10"*';
-        this.appendAIMessage(fallbackMsg);
-        this.saveToConversationHistory('model', fallbackMsg);
+        // FALLBACK -> Ask live Vercel Gemini Assistant instead of static canned reply
+        this.callBackendAIChat(text);
     }
 
-    processAIImageOCR(imageBase64, userPrompt) {
-        const todayStr = new Date().toISOString().split('T')[0];
+    undoLastFinanceItem() {
+        const financeList = store.getFinance();
+        if (!financeList || financeList.length === 0) {
+            const msg = '📭 ยังไม่มีรายการรายรับ-รายจ่ายให้ยกเลิกในขณะนี้ค่ะ';
+            this.appendAIMessage(msg);
+            this.saveToConversationHistory('model', msg);
+            return null;
+        }
+        const removed = financeList[0];
+        store.deleteFinanceItem(removed.id);
+        if (window.financeController) window.financeController.render();
+        if (window.chartRenderController) {
+            window.chartRenderController.initFinanceCategoryChart();
+            window.chartRenderController.initMainOverviewChart();
+        }
+        const updated = store.getFinance();
+        const inc = updated.filter(x => x.type === 'income').reduce((s, x) => s + Number(x.amount), 0);
+        const exp = updated.filter(x => x.type === 'expense').reduce((s, x) => s + Number(x.amount), 0);
+        const bal = inc - exp;
 
-        const calendarData = store.getCalendar();
-        if (!calendarData[todayStr]) calendarData[todayStr] = {};
+        const msg = `↩️ **น้องธิดายกเลิกและลบรายการล่าสุดให้แล้วค่ะ!**\n• รายการที่ลบ: **${removed.title}** (${removed.type === 'income' ? '+' : '-'}฿${formatMoney(removed.amount)})\n• 💵 **เงินคงเหลือส่วนตัวตอนนี้**: **฿${formatMoney(bal)}**`;
+        this.appendAIMessage(msg);
+        this.saveToConversationHistory('model', msg);
+        if (window.appController) window.appController.showToast(`↩️ ลบรายการ "${removed.title}" เรียบร้อยค่ะ!`);
+        return removed;
+    }
 
-        calendarData[todayStr].status = 'busy';
-        localStorage.setItem(STORAGE_KEYS.CALENDAR, JSON.stringify(calendarData));
-        store.notifyListeners('calendar');
+    commitFinanceSlipRecord({ type = 'expense', category = '', title, amount, calories = null, date = '', note = '', cardId = '' }) {
+        const todayStr = this.getLocalDateStr();
+        const dateToUse = date || todayStr;
+        const isIncome = type === 'income';
+        const finalCategory = category || (isIncome ? '💰 รายรับส่วนตัว' : (calories ? '🍔 อาหาร & เครื่องดื่ม' : this.detectSmartCategory(title)));
 
-        store.addTask({
-            title: '📌 นัดประชุมสำคัญ (Gemini Vision อ่านจากเอกสาร)',
-            priority: 'high',
-            dueDate: todayStr,
-            status: 'pending',
-            source: 'user',
-            note: 'สกัดข้อมูลอัตโนมัติจากรูปเอกสารด้วย Gemini Vision'
+        store.addFinanceItem({
+            date: dateToUse,
+            type: isIncome ? 'income' : 'expense',
+            category: finalCategory,
+            title: title,
+            amount: Number(amount),
+            calories: (!isIncome && calories) ? Number(calories) : null,
+            note: note || (isIncome ? `รายรับส่วนตัว: ${title}` : `รายจ่ายส่วนตัว: ${title}`)
         });
 
-        if (window.calendarController) window.calendarController.render();
-        if (window.tasksController) window.tasksController.renderTasks();
+        if (window.financeController) window.financeController.render();
+        if (window.chartRenderController) {
+            window.chartRenderController.initFinanceCategoryChart();
+            window.chartRenderController.initMainOverviewChart();
+        }
 
-        const replyMsg = '✨ **Gemini Vision อ่านรูปภาพเอกสารนัดประชุมเรียบร้อยแล้วค่ะคุณเจ้าของร้าน!** 📷✨\n\n📌 **ลงปฏิทินและตั้งเตือนให้อัตโนมัติ**:\n• วันที่: ' + todayStr + ' (วันนี้)\n• สถานะ: 🔴 วันไม่ว่าง (Busy)\n• สร้างภารกิจเตือนความจำบนมือถือเรียบร้อยค่ะ!';
+        const financeList = store.getFinance();
+        const totalIncome = financeList.filter(x => x.type === 'income').reduce((s, x) => s + Number(x.amount), 0);
+        const totalExpense = financeList.filter(x => x.type === 'expense').reduce((s, x) => s + Number(x.amount), 0);
+        const netBalance = totalIncome - totalExpense;
 
-        const actionCardHTML = '<div class="ai-action-card"><div class="action-card-header">📷 อ่านสกัดรูปเอกสารสำเร็จ</div><div class="action-card-buttons"><button class="action-card-btn action-card-btn-primary" onclick="appController.switchTab(\'calendar\')">📅 เปิดดูปฏิทิน</button><button class="action-card-btn action-card-btn-secondary" onclick="appController.switchTab(\'tasks\')">✅ ดูงานค้าง</button></div></div>';
+        const todayMeals = financeList.filter(x => x.type === 'expense' && x.date === dateToUse && (x.calories || (x.category && x.category.includes('อาหาร'))));
+        const totalCaloriesToday = todayMeals.reduce((s, m) => s + (Number(m.calories) || 450), 0);
+        const remainingCal = Math.max(0, 2000 - totalCaloriesToday);
+        const percentCal = Math.min(100, Math.round((totalCaloriesToday / 2000) * 100));
+        const formattedDate = this.formatThaiDateStr(dateToUse);
 
+        const badgeColor = isIncome ? '#10b981' : '#38bdf8';
+        const badgeBg = isIncome ? 'rgba(16, 185, 129, 0.15)' : 'rgba(56, 189, 248, 0.15)';
+        const slipInnerHTML = `
+            <div class="slip-header">
+                <span class="slip-badge-tag" style="color:${badgeColor};background:${badgeBg};">${isIncome ? '💰 DIGITAL INCOME SLIP' : '🧾 DIGITAL EXPENSE SLIP'}</span>
+                <span class="slip-status-badge">${isIncome ? '✅ เพิ่มเงินเข้าแล้ว' : '✅ หักเงินแล้ว'}</span>
+            </div>
+            <div class="slip-title">${escapeHTML(title)}</div>
+            <div class="slip-price-row">
+                <span class="slip-price-amount" style="color:${isIncome ? '#10b981' : '#fb7185'};">${isIncome ? '+' : '-'}฿${formatMoney(amount)}</span>
+                ${(!isIncome && calories) ? `<span class="slip-cal-pill">🔥 ~${calories} kcal</span>` : ''}
+            </div>
+            <hr class="slip-divider">
+            <div class="slip-row">
+                <span class="slip-label">หมวดหมู่</span>
+                <span class="slip-val">${finalCategory}</span>
+            </div>
+            <div class="slip-row">
+                <span class="slip-label">💵 เงินคงเหลือสุทธิ</span>
+                <span class="slip-val" style="color: #38bdf8;">฿${formatMoney(netBalance)}</span>
+            </div>
+            ${(!isIncome && calories) ? `
+                <div class="slip-progress-box">
+                    <div class="slip-row" style="margin-bottom: 2px;">
+                        <span class="slip-label" style="font-size: 0.75rem;">🥗 แคลอรี่วันนี้ (${formattedDate})</span>
+                        <span class="slip-val" style="color: #f59e0b; font-size: 0.75rem;">${totalCaloriesToday.toLocaleString()} / 2,000 kcal</span>
+                    </div>
+                    <div class="slip-progress-bar">
+                        <div class="slip-progress-fill ${totalCaloriesToday > 2000 ? 'over' : ''}" style="width: ${percentCal}%;"></div>
+                    </div>
+                    <div style="text-align: right; font-size: 0.68rem; color: #94a3b8;">ทานได้อีก ~${remainingCal.toLocaleString()} kcal</div>
+                </div>
+            ` : ''}
+            <div style="margin-top: 10px; font-size: 0.68rem; color: #64748b; text-align: center;">🔒 บัญชีส่วนตัว 100% ไม่ปะปนกับรายได้ร้านค้า</div>
+        `;
+
+        if (cardId) {
+            const cardElem = document.getElementById(cardId);
+            if (cardElem) cardElem.innerHTML = slipInnerHTML;
+            if (window.appController) {
+                window.appController.showToast(`🎉 บันทึก ${title} ${isIncome ? '+' : '-'}฿${formatMoney(amount)} เรียบร้อยค่ะ!`);
+            }
+            return;
+        }
+
+        const replyMsg = isIncome
+            ? `💰 **น้องธิดาบันทึกรายรับส่วนตัวเรียบร้อยแล้วค่ะ!**\n📌 **รายการ**: **${title}** (+฿${formatMoney(amount)})\n💵 **เงินคงเหลือส่วนตัวสุทธิ**: **฿${formatMoney(netBalance)}**`
+            : `✨ **น้องธิดา${calories ? 'คำนวณแคลอรี่และ' : ''}หักลบรายจ่ายส่วนตัวให้เรียบร้อยแล้วค่ะ!**\n📌 **รายการ**: **${title}** (-฿${formatMoney(amount)})${calories ? `\n🔥 **พลังงาน**: **~${calories} kcal**` : ''}\n💵 **เงินคงเหลือส่วนตัวสุทธิ**: **฿${formatMoney(netBalance)}**`;
+
+        this.appendAIMessage(replyMsg, `<div class="digital-slip-card">${slipInnerHTML}</div>`);
+        this.saveToConversationHistory('model', replyMsg);
+    }
+
+    renderFoodAnalysisResult(detectedName, detectedCal, price, isOfflineFallback = false) {
+        if (price > 0) {
+            this.commitFinanceSlipRecord({
+                type: 'expense',
+                category: '🍔 อาหาร & เครื่องดื่ม',
+                title: detectedName,
+                amount: price,
+                calories: detectedCal,
+                note: `ภาพถ่ายสแกนอาหาร: ${detectedName} (~${detectedCal} kcal)`
+            });
+            return;
+        }
+
+        const slipId = 'meal-slip-' + Date.now();
+        const actionCardHTML = `
+            <div class="digital-slip-card" id="${slipId}">
+                <div class="slip-header">
+                    <span class="slip-badge-tag" style="color: #f59e0b; background: rgba(245, 158, 11, 0.15);">📸 AI FOOD SCANNER</span>
+                    <span class="slip-status-badge">${isOfflineFallback ? '⚠️ โหมดออฟไลน์' : '✨ ตรวจพบเมนู'}</span>
+                </div>
+                <div class="slip-title">${escapeHTML(detectedName)}</div>
+                <div class="slip-price-row">
+                    <span class="slip-cal-pill" style="font-size: 0.9rem; padding: 4px 10px;">🔥 ประมาณ ~${detectedCal} kcal</span>
+                </div>
+                <div style="font-size: 0.8rem; color: #94a3b8; margin-bottom: 8px;">
+                    ${isOfflineFallback ? 'ไม่สามารถเชื่อมต่อ AI Vision ชั่วคราว — กรุณาตรวจสอบหรือระบุราคาด้านล่างค่ะ:' : 'กรุณาระบุราคาเพื่อบันทึกเป็นรายจ่ายและหักเงินทันทีค่ะ:'}
+                </div>
+                <div class="slip-input-bar">
+                    <input type="number" id="${slipId}-input" class="slip-price-input" value="50" placeholder="ระบุราคา (บาท)">
+                    <button class="btn-slip-deduct" onclick="aiAssistantController.confirmMealExpense('${escape(detectedName)}', ${detectedCal}, '${slipId}-input', '${slipId}')">
+                        ✅ ตัดเงินทันที
+                    </button>
+                </div>
+                <div class="slip-chips-row">
+                    <button type="button" class="slip-chip" onclick="document.getElementById('${slipId}-input').value=40">฿40</button>
+                    <button type="button" class="slip-chip" onclick="document.getElementById('${slipId}-input').value=50">฿50</button>
+                    <button type="button" class="slip-chip" onclick="document.getElementById('${slipId}-input').value=60">฿60</button>
+                    <button type="button" class="slip-chip" onclick="document.getElementById('${slipId}-input').value=70">฿70</button>
+                    <button type="button" class="slip-chip" onclick="document.getElementById('${slipId}-input').value=80">฿80</button>
+                    <button type="button" class="slip-chip" onclick="document.getElementById('${slipId}-input').value=100">฿100</button>
+                </div>
+            </div>
+        `;
+
+        const replyMsg = `📸 **น้องธิดาสแกนรูปอาหารพบ: "${detectedName}" ค่ะ!** 🍽️🔥\n• พลังงานประมาณ: **~${detectedCal} kcal**\n\n💰 *กรุณาระบุราคาด้านล่างแล้วกด "ตัดเงินทันที" ธิดาจะช่วยหักเงินและบันทึกลงบัญชีส่วนตัวให้ทันทีค่ะ 😊*`;
         this.appendAIMessage(replyMsg, actionCardHTML);
         this.saveToConversationHistory('model', replyMsg);
-        this.triggerMobileNotification('📌 นัดประชุมสำคัญ!', 'Gemini AI บันทึกลงปฏิทินเรียบร้อยแล้ว');
+    }
+
+    processAIImageOCR(imageBase64, userPrompt, isOfflineFallback = false) {
+        const promptExtract = extractFoodAndAmount(userPrompt || '');
+        let detectedName = 'อาหารจานเดียว';
+        let detectedCal = 500;
+        const price = promptExtract ? promptExtract.amount : 0;
+
+        if (promptExtract && promptExtract.food) {
+            detectedName = promptExtract.food;
+            const cal = calculateFoodCalories(detectedName);
+            detectedCal = cal.isFood ? cal.calories : 450;
+        } else if (userPrompt && userPrompt.trim().length > 1) {
+            const cal = calculateFoodCalories(userPrompt);
+            if (cal.isFood) {
+                detectedName = cal.name || userPrompt;
+                detectedCal = cal.calories;
+            }
+        }
+        this.renderFoodAnalysisResult(detectedName, detectedCal, price, isOfflineFallback);
+    }
+
+    confirmMealExpense(dishName, calories, inputId, cardId, txType = 'expense') {
+        const inputElem = document.getElementById(inputId);
+        const price = inputElem ? parseFloat(inputElem.value) : 50;
+        if (!price || price <= 0) {
+            alert('กรุณาระบุราคาที่ถูกต้องค่ะ');
+            return;
+        }
+
+        const decodedDish = unescape(dishName);
+        this.commitFinanceSlipRecord({
+            type: txType === 'income' ? 'income' : 'expense',
+            category: txType === 'income' ? '💰 รายรับส่วนตัว' : (calories > 0 ? '🍔 อาหาร & เครื่องดื่ม' : '🧾 บิล/ค่าใช้จ่าย'),
+            title: decodedDish,
+            amount: price,
+            calories: calories > 0 ? calories : null,
+            note: `บันทึกจากภาพถ่าย/สลิป AI: ${decodedDish}${calories > 0 ? ` (~${calories} kcal)` : ''}`,
+            cardId: cardId
+        });
     }
 
     triggerMobileNotification(title, body) {
@@ -971,6 +1814,7 @@ class AIAssistantController {
 }
 
 const aiAssistantController = window.aiAssistantController = new AIAssistantController();
+window.getLocalDateStr = d => aiAssistantController.getLocalDateStr(d);
 document.addEventListener('DOMContentLoaded', () => {
     aiAssistantController.init();
 });

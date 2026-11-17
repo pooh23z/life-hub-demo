@@ -20,10 +20,11 @@ Designed for entrepreneurs, freelancers, and individuals managing daily finances
 - **Availability Management**: Mark free vs. busy days with event notes.
 - **Task System**: Interactive checklist with priority levels and due dates.
 
-### 🤖 4. AI Assistant & Real-time Integrations
-- **AI Chatbot**: Intelligent productivity assistant with voice input support (Web Speech API).
-- **LINE Broadcast & Notify**: Serverless message sending to LINE Official Accounts.
-- **Gmail Integration**: Google Identity Services OAuth2 login & email feed reader.
+### 🤖 4. Gemini AI & LINE Official Account Webhook
+- **2-Way AI Webhook Assistant**: Chat with LINE Bot for real-time finance logging (e.g., *"กะเพรา 25 บาท"* or *"ซื้อขนม 200"*).
+- **Food Photo Scanner & Calorie Tracker**: Multimodal food image analysis powered by Gemini 2.5 Flash, estimating calories from photos and deducting expense automatically.
+- **LINE Flex Message Digital Slips**: Generates rich interactive slip receipts with daily nutrition progress.
+- **Cross-Device Firebase Cloud Sync**: Real-time room-based synchronization between Mobile & Desktop with offline tombstone state preservation and selective finance reset (`฿0.00`).
 
 ---
 
